@@ -5,7 +5,7 @@ SHELL := /bin/bash
 TARGET=
 USE_CROSS=
 BINARY_NAME?=pact-cli
-SLIM=false
+SLIM=true
 BUILDER=cargo
 
 ifeq ($(TARGET),)
@@ -81,22 +81,23 @@ cargo_build_release:
 				$(BUILDER) build --target=$(TARGET) --release; \
 			elif [[ $(TARGET) == *"risc"* ]] && [[ $(TARGET) == *"musl"* ]]; then \
 				echo "building for risc targets, build with nightly for build-std"; \
-				RUSTFLAGS="-Zlocation-detail=none" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro -Z build-std-features=panic_immediate_abort --target=$(TARGET) --bin $(BINARY_NAME) --release; \
+				RUSTFLAGS="-Zlocation-detail=none -Zunstable-options -Cpanic=immediate-abort" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro --target=$(TARGET) --bin $(BINARY_NAME) --release; \
+				RUSTFLAGS="-Zlocation-detail=none -Zunstable-options -Cpanic=immediate-abort" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro --target=$(TARGET) --bin $(BINARY_NAME) --release; \
 			elif [[ $(TARGET) == *"s390x"* ]] && [[ $(TARGET) == *"musl"* ]]; then \
 				echo "building for s390x musl targets, build with nightly for build-std"; \
-				RUSTFLAGS="-Zlocation-detail=none" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro -Z build-std-features=panic_immediate_abort --target=$(TARGET) --bin $(BINARY_NAME) --release; \
+				RUSTFLAGS="-Zlocation-detail=none -Zunstable-options -Cpanic=immediate-abort" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro --target=$(TARGET) --bin $(BINARY_NAME) --release; \
 			elif [[ $(TARGET) == *"mips"* ]]; then \
 				echo "building for mips targets, refusing to build with nightly as unable to build-std"; \
 				rustup toolchain install $(TARGET); \
 				rustup component add rust-src --toolchain stable --target $(TARGET); \
 				cargo install cross --git https://github.com/cross-rs/cross; \
 				$(BUILDER) build --target=$(TARGET) --release; \
-			elif [[ $(TARGET) == "aarch64-unknown-linux-musl" ]] || [[ $(TARGET) == "armv5te-unknown-linux-musleabi" ]]; then \
-				RUSTFLAGS="-Zlocation-detail=none -C link-arg=-lgcc" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro -Z build-std-features=panic_immediate_abort --target=$(TARGET) --bin $(BINARY_NAME) --release; \
+			elif [[ $(TARGET) == "aarch64-unknown-linux-musl" ]] || [[ $(TARGET) == "armv5te-unknown-linux-musleabi" ]] || [[ $(TARGET) == "x86_64-unknown-linux-musl" ]]; then \
+				RUSTFLAGS="-Zlocation-detail=none -Zunstable-options -Cpanic=immediate-abort -C link-arg=-lgcc " $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro --target=$(TARGET) --bin $(BINARY_NAME) --release; \
 			elif [[ $(TARGET) == *"musl"* ]]; then \
-				RUSTFLAGS="-Zlocation-detail=none" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro -Z build-std-features=panic_immediate_abort --target=$(TARGET) --bin $(BINARY_NAME) --release; \
+				RUSTFLAGS="-Zlocation-detail=none -Zunstable-options -Cpanic=immediate-abort" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro --target=$(TARGET) --bin $(BINARY_NAME) --release; \
 			else \
-				RUSTFLAGS="-Zlocation-detail=none" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro -Z build-std-features=panic_immediate_abort --target=$(TARGET) --release; \
+				RUSTFLAGS="-Zlocation-detail=none -Zunstable-options -Cpanic=immediate-abort" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro --target=$(TARGET) --bin $(BINARY_NAME) --release; \
 			fi; \
 		fi \
 	elif [[ $(TARGET) == "aarch64-unknown-freebsd" ]]; then \

@@ -34,7 +34,7 @@ on:
       slim:
         description: 'Enable slim mode'
         required: true
-        default: false
+        default: true
         type: boolean
       use-cross:
         description: 'Enable cross-compilation'
@@ -134,7 +134,7 @@ jobs:
       target: ${{ matrix.job.target }}
       os: ${{ matrix.job.os }}
       use-cross: ${{ matrix.job.use-cross }}
-      slim: false
+      slim: true
       version: ${{ needs.version.outputs.version }}
     strategy:
       fail-fast: false
