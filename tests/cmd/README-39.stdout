@@ -1,7 +1,0 @@
-error: The following required arguments were not provided:
-    <NAME>
-
-USAGE:
-    clap_cli app2 <NAME>
-
-For more information try --help

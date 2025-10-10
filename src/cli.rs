@@ -1,0 +1,48 @@
+use clap::{command, Arg, Command, CommandFactory};
+
+use crate::cli::{
+    pact_broker_docker::add_docker_broker_subcommand, pact_broker_ruby::add_ruby_broker_subcommand,
+};
+
+pub mod pact_broker_docker;
+pub mod pact_broker_ruby;
+
+pub fn build_cli() -> Command {
+    let app = Command::new("pact-cli")
+        .about("Pact consolidated CLI - pact_core_mock_server, pact_verifier, pact-stub-server, pact-plugin-cli, pact-broker-cli in a single binary")
+        .subcommand(
+            pact_broker_cli::cli::pact_broker_client::add_pact_broker_client_command()
+            .name("pact-broker")
+            .subcommand(add_ruby_broker_subcommand())
+            .subcommand(add_docker_broker_subcommand())
+        )
+        .args(pact_broker_cli::cli::add_logging_arguments())
+        .subcommand(
+            pact_broker_cli::cli::pactflow_client::add_pactflow_client_command().name("pactflow"),
+        )
+        .subcommand(add_completions_subcommand())
+        .subcommand(pact_plugin_cli::Cli::command().name("plugin"))
+        .subcommand(pact_mock_server_cli::setup_args().name("mock"))
+        .subcommand(pact_verifier_cli::args::setup_app().name("verifier"))
+        .subcommand(pact_stub_server_cli::build_args().name("stub"));
+    app
+}
+
+fn add_completions_subcommand() -> Command {
+    Command::new("completions") 
+    .about("Generates completion scripts for your shell")
+    .arg(Arg::new("shell")
+        .value_name("SHELL")
+        .required(true)
+        .value_parser(clap::builder::PossibleValuesParser::new(&["bash", "fish", "zsh", "powershell", "elvish"]))
+        .help("The shell to generate the script for"))
+    .arg(Arg::new("dir")
+        .short('d')
+        .long("dir")
+        .value_name("DIRECTORY")
+        .required(false)
+        .default_value(".")
+        .num_args(1)
+        .value_parser(clap::builder::NonEmptyStringValueParser::new())
+        .help("The directory to write the shell completions to, default is the current directory"))
+}

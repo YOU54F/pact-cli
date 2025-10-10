@@ -1,89 +1,177 @@
-name: CICD
+name: Test and Release
 
 on:
   pull_request:
     branches:
-    - '*'
+      - 'main'
   push:
     branches:
-    - main
+      - 'main'
+    tags:
+      - 'v*'
+      - '!vlatest'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target platform'
+        required: true
+        default: 'x86_64-apple-darwin'
+        type: choice
+        options:
+            - 'x86_64-apple-darwin'
+            - 'x86_64-unknown-linux-gnu'
+            - 'x86_64-unknown-linux-musl'
+            - 'x86_64-unknown-netbsd'
+            - 'x86_64-unknown-freebsd'
+            - 'x86_64-pc-windows-msvc'
+            - 'x86_64-pc-windows-gnu'
+            - 'aarch64-apple-darwin'
+            - 'aarch64-unknown-linux-musl'
+            - 'aarch64-unknown-linux-gnu'
+            - 'aarch64-unknown-freebsd'
+            - 'aarch64-pc-windows-msvc'
+
+      slim:
+        description: 'Enable slim mode'
+        required: true
+        default: false
+        type: boolean
+      use-cross:
+        description: 'Enable cross-compilation'
+        required: true
+        default: false
+        type: boolean
+      version:
+        description: 'The version of the pact cli to release as'
+        default: 'latest'
+      force_release:
+        description: 'force release for target from branch other than main'
+        required: true
+        default: false
+        type: boolean
+      os:
+        description: 'Operating system'
+        required: true
+        default: 'macos-14'
+        type: choice
+        options: ['ubuntu-latest', 'macos-12', 'macos-14', 'windows-latest']
 
 jobs:
+
+  version:
+    name: "🧮 Compute the version"
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_next_version.outputs.version }}
+      hasNextVersion: ${{ steps.get_next_version.outputs.hasNextVersion }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        lfs: true
+        fetch-depth: 0
+    - name: Get next version
+      id: get_next_version
+      uses: thenativeweb/get-next-version@main
+    - name: print
+      run: |
+        echo "version: ${{ steps.get_next_version.outputs.version }}"
+        echo "has_next_version: ${{ steps.get_next_version.outputs.hasNextVersion }}"
+
+  changelog:
+    needs:
+      - version
+    name: ✍️ Generate changelog
+    runs-on: ubuntu-latest
+    outputs:
+      content: ${{steps.git-cliff.outputs.content}}
+      release_body: ${{ steps.git-cliff-changes.outputs.content }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: --verbose
+        env:
+          OUTPUT: CHANGELOG.md
+      - name: Print the changelog
+        run: echo "${{ steps.git-cliff.outputs.content }}"
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff-changes
+        with:
+          config: cliff.toml
+          args: -vv --latest --strip header
+        env:
+          OUTPUT: CHANGES.md
+      - name: Print the changelog
+        run: echo "${{ steps.git-cliff-changes.outputs.content }}"
+
+  build-single:
+    needs: [version, changelog]
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      target: ${{ github.event.inputs.target }}
+      os: ${{ github.event.inputs.os }}
+      use-cross: ${{ github.event.inputs.use-cross == 'true'}}
+      slim: ${{ github.event.inputs.slim == 'true' }}
+      version: ${{ needs.version.outputs.version }}
+    name: '🛠️ Build binaries'
+    permissions:
+      contents: write
+
   build:
-    name: "🛠️ Build binaries"
-    defaults:
-      run:
-        shell: bash
+    needs: [version, changelog]
+    if: ${{ github.event_name != 'workflow_dispatch' }}
+    name: '🛠️ Build binaries'
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      target: ${{ matrix.job.target }}
+      os: ${{ matrix.job.os }}
+      use-cross: ${{ matrix.job.use-cross }}
+      slim: false
+      version: ${{ needs.version.outputs.version }}
     strategy:
       fail-fast: false
       matrix:
         job:
-          - { target: x86_64-apple-darwin      , suffix: ""  , os: macos-14                   }
-          - { target: aarch64-apple-darwin      , suffix: ""  , os: macos-14                   }
-          - { target: x86_64-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: x86_64-unknown-linux-musl , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: aarch64-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: aarch64-unknown-linux-musl , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: arm-unknown-linux-gnueabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: arm-unknown-linux-gnueabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: arm-unknown-linux-musleabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: arm-unknown-linux-musleabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: armv7-unknown-linux-gnueabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: armv7-unknown-linux-gnueabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: armv7-unknown-linux-musleabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: armv7-unknown-linux-musleabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: i586-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: i686-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: x86_64-unknown-netbsd , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: x86_64-unknown-freebsd , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: armv5te-unknown-linux-gnueabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: armv5te-unknown-linux-musleabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: arm-linux-androideabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: armv7-linux-androideabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: aarch64-linux-android , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: i686-linux-android , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: x86_64-linux-android , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: thumbv7neon-linux-androideabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: thumbv7neon-unknown-linux-gnueabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
-          - { target: x86_64-pc-windows-msvc , suffix: ""    , os: windows-latest }
-          - { target: aarch64-pc-windows-msvc , suffix: ""    , os: windows-latest }
-          - { target: i686-pc-windows-msvc , suffix: ""    , os: windows-latest }
-          - { target: x86_64-pc-windows-gnu , suffix: ""    , os: windows-latest }
-    runs-on: ${{matrix.job.os}}
-    steps:
-    - uses: actions/checkout@v3
-    #   with:
-    #       lfs: true
-    #       fetch-depth: 0
-    #       ref: ${{ github.event.pull_request.head.sha }}
-    - name: Install Rust Toolchain Components
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        target: ${{ matrix.job.target }}
-        toolchain: stable
-    - name: Build
-      if: ${{ matrix.job.use-cross != true }}
-      run: cargo build --bin clap_cli${{ matrix.job.suffix }} --release --target=${{ matrix.job.target }}
-    - name: Build
-      if: ${{ matrix.job.use-cross == true }}
-      run: |
-        cargo install cross@0.2.5
-        cross build --bin clap_cli${{ matrix.job.suffix }} --release --target=${{ matrix.job.target }}
-    - name: Test
-      run: cargo test --release --bin clap_cli${{ matrix.job.suffix }} --target=${{ matrix.job.target }}
-    - name: Create dist
-      id: dist
-      shell: bash
-      run: |
-        EXECUTABLE="target/${{ matrix.job.target }}/release/clap_cli${{ matrix.job.suffix }}"
-        BINARY_NAME="clap_cli_${{ matrix.job.target }}${{ matrix.job.suffix }}"
-        BINARY_PATH="dist/${BINARY_NAME}"
-        mkdir -p "dist/"
-        # Binary
-        cp "${EXECUTABLE}" "${BINARY_PATH}"
-        echo "BINARY_NAME=${BINARY_NAME}" >> $GITHUB_OUTPUT
-        echo "BINARY_PATH=${BINARY_PATH}" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@master
-      with:
-        name: ${{ matrix.job.target }}
-        path: dist/
+          - { target: x86_64-apple-darwin, os: macos-14, use-cross: false }
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-unknown-linux-musl, os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-unknown-netbsd, os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-unknown-freebsd, os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest, use-cross: false }
+          - { target: x86_64-pc-windows-gnu, os: windows-latest, use-cross: false }
+          - { target: aarch64-apple-darwin, os: macos-14, use-cross: false }
+          - { target: aarch64-unknown-linux-musl, os: ubuntu-latest, use-cross: true }
+          - { target: aarch64-unknown-linux-gnu, os: ubuntu-latest, use-cross: true }
+          - { target: aarch64-unknown-freebsd, os: ubuntu-latest, use-cross: true }
+          - { target: aarch64-pc-windows-msvc, os: windows-latest, use-cross: false }
+
+
+  release:
+    needs: ["build", changelog, version ]
+    name: '📦 Github release'
+    if: ${{ startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/reusable-release.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+      release_notes: ${{ needs.changelog.outputs.release_body }}
+  release-single:
+    needs: ["build-single", changelog, version]
+    name: '📦 Github release - single'
+    if: ${{ inputs.force_release == true }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/reusable-release.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+      release_notes: ${{ needs.changelog.outputs.release_body }}
+      force_release: ${{ github.event.inputs.force_release == 'true' }}

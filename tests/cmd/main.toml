@@ -1,2 +1,1 @@
-bin.name = "clap_cli"
-status.code = 2
+bin.name = "pact-cli"
