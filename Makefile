@@ -5,7 +5,7 @@ SHELL := /bin/bash
 TARGET=
 USE_CROSS=
 BINARY_NAME?=pact-cli
-SLIM=false
+SLIM=true
 BUILDER=cargo
 
 ifeq ($(TARGET),)
