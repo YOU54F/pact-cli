@@ -92,8 +92,8 @@ cargo_build_release:
 				rustup component add rust-src --toolchain stable --target $(TARGET); \
 				cargo install cross --git https://github.com/cross-rs/cross; \
 				$(BUILDER) build --target=$(TARGET) --release; \
-			elif [[ $(TARGET) == "aarch64-unknown-linux-musl" ]] || [[ $(TARGET) == "armv5te-unknown-linux-musleabi" ]]; then \
-				RUSTFLAGS="-Zlocation-detail=none -C link-arg=-lgcc" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro --target=$(TARGET) --bin $(BINARY_NAME) --release; \
+			elif [[ $(TARGET) == "aarch64-unknown-linux-musl" ]] || [[ $(TARGET) == "armv5te-unknown-linux-musleabi" ]] || [[ $(TARGET) == "x86_64-unknown-linux-musl" ]]; then \
+				RUSTFLAGS="-Zlocation-detail=none -Zunstable-options -Cpanic=immediate-abort -C link-arg=-lgcc " $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro --target=$(TARGET) --bin $(BINARY_NAME) --release; \
 			elif [[ $(TARGET) == *"musl"* ]]; then \
 				RUSTFLAGS="-Zlocation-detail=none -Zunstable-options -Cpanic=immediate-abort" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro --target=$(TARGET) --bin $(BINARY_NAME) --release; \
 			else \
