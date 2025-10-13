@@ -16,7 +16,7 @@ if [ "$tag" ]; then
 fi
 
 if command -v curl >/dev/null 2>&1; then
-  downloader="curl -sLO"
+  downloader="curl -sLO --fail"
 elif command -v wget >/dev/null 2>&1; then
   downloader="wget -q"
 else
@@ -32,6 +32,10 @@ if [ -z "$PACT_CLI_VERSION" ]; then
   else
     echo "Sorry, you need set a version number PACT_CLI_VERSION as we can't determine the latest at this time. See https://github.com/you54f/pact-cli/releases/latest."
     exit 1
+  fi
+  if [ -z "$PACT_CLI_VERSION" ]; then
+    PACT_CLI_VERSION=vlatest
+    echo "No version specified, defaulting to $PACT_CLI_VERSION"
   fi
 
   echo "Thanks for downloading the latest release of pact-cli $PACT_CLI_VERSION."
@@ -107,20 +111,27 @@ case $os in
   ;;
 esac
 
+PROJECT_NAME=pact-cli
 echo 
 echo "-------------"
 echo "Downloading ${filename} - version ${PACT_CLI_VERSION}"
 echo "-------------"
-($downloader https://github.com/you54f/pact-cli/releases/download/"${PACT_CLI_VERSION}"/"${filename}" && echo downloaded "${filename}") || (echo "Sorry, you'll need to install the pact-cli manually." && exit 1)
-(chmod +x "${filename}" && echo unarchived "${filename}") || (echo "Sorry, you'll need to unarchived the pact-cli manually." && exit 1)
-echo "pact-cli ${PACT_CLI_VERSION} installed to $(pwd)"
+echo "Url: https://github.com/you54f/pact-cli/releases/download/${PACT_CLI_VERSION}/${filename}"
+($downloader https://github.com/you54f/pact-cli/releases/download/"${PACT_CLI_VERSION}"/"${filename}" && echo downloaded "${filename}") || (echo "Failed to download pact-cli, check the version and url." && exit 1)
+echo "$PROJECT_NAME ${PACT_CLI_VERSION} installed to $(pwd)"
 echo "-------------------"
 echo "available commands:"
 echo "-------------------"
-PROJECT_NAME=pact-cli
 PACT_BROKER_CLI_BIN_PATH=${PWD}
-mv $filename $PROJECT_NAME
-chmod +x $PROJECT_NAME
+if [[ "$filename" == *.exe ]]; then
+  mv "$filename" "$PROJECT_NAME.exe"
+  chmod +x "$PROJECT_NAME.exe"
+else
+  mv "$filename" "$PROJECT_NAME"
+  chmod +x "$PROJECT_NAME"
+fi
+./pact-cli --help
+echo "-------------------"
 if [ "$GITHUB_ENV" ]; then
 echo "Added the following to your path to make ${PROJECT_NAME} available:"
 echo ""
