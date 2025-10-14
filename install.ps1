@@ -20,7 +20,7 @@ $url = "https://github.com/you54f/pact-cli/releases/download/$tag/pact-cli-$arch
 
 
 Write-Host "Downloading $url to $pactDir"
-$exe = Join-Path $pactDir "pact-cli"
+$exe = Join-Path $pactDir "pact-cli.exe"
 if (Test-Path "$exe") {
   Remove-Item $exe
 }
@@ -34,5 +34,4 @@ Write-Host "--> Adding pact-cli to path"
 $pactBinariesPath = "$pactDir"
 $env:PATH += ";$pactBinariesPath"
 Write-Host $env:PATH
-Get-ChildItem $pactBinariesPath
-pact-cli.exe --version
+pact-cli.exe --help
