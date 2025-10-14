@@ -122,7 +122,7 @@ echo "$PROJECT_NAME ${PACT_CLI_VERSION} installed to $(pwd)"
 echo "-------------------"
 echo "available commands:"
 echo "-------------------"
-PACT_BROKER_CLI_BIN_PATH=${PWD}
+PACT_CLI_VERSION=${PWD}
 if [[ "$filename" == *.exe ]]; then
   mv "$filename" "$PROJECT_NAME.exe"
   chmod +x "$PROJECT_NAME.exe"
@@ -135,16 +135,16 @@ echo "-------------------"
 if [ "$GITHUB_ENV" ]; then
 echo "Added the following to your path to make ${PROJECT_NAME} available:"
 echo ""
-echo "PATH=$PACT_BROKER_CLI_BIN_PATH:\${PATH}"
-echo "PATH=$PACT_BROKER_CLI_BIN_PATH:${PATH}" >>"$GITHUB_ENV"
+echo "PATH=$PACT_CLI_VERSION:\${PATH}"
+echo "PATH=$PACT_CLI_VERSION:${PATH}" >>"$GITHUB_ENV"
 elif [ "$CIRRUS_CI" ]; then
 echo "Added the following to your path to make ${PROJECT_NAME} available:"
 echo ""
-echo "PATH=$PACT_BROKER_CLI_BIN_PATH:\${PATH}"
-echo "PATH=$PACT_BROKER_CLI_BIN_PATH:${PATH}" >>"$CIRRUS_ENV"
+echo "PATH=$PACT_CLI_VERSION:\${PATH}"
+echo "PATH=$PACT_CLI_VERSION:${PATH}" >>"$CIRRUS_ENV"
 else
 echo "Add the following to your path to make ${PROJECT_NAME} available:"
 echo "--- Linux/MacOS/Windows Bash Users --------"
 echo ""
-echo "  PATH=$PACT_BROKER_CLI_BIN_PATH:\${PATH}"
+echo "  PATH=$PACT_CLI_VERSION:\${PATH}"
 fi
