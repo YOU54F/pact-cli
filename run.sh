@@ -53,8 +53,8 @@ ${BIN} pact-broker update-environment --uuid $ENV_UUID --name name_foo9 --contac
 ${BIN} pact-broker delete-environment --uuid $ENV_UUID
 ${BIN} pact-broker list-environments | awk -F '│' '{print $2}' | sed -n '3,$p' | sed '$d' | awk '{print $1}' | xargs -I {} ${BIN} pact-broker delete-environment --uuid {} 
 ${BIN} pact-broker create-environment --name production --production
-${BIN} pact-broker publish --dir tests/pacts -r
-${BIN} pact-broker publish --dir tests/pacts -a foo --branch bar
+${BIN} pact-broker publish tests/pacts -r
+${BIN} pact-broker publish tests/pacts -a foo --branch bar
 ${BIN} pact-broker can-i-deploy --pacticipant GettingStartedOrderWeb --version foo --to prod || echo "can-i-deploy fails due to no verification result - expected"
 ${BIN} pact-broker can-i-deploy --pacticipant GettingStartedOrderWeb --version foo --to prod --dry-run
 ${BIN} pact-broker record-deployment --version foo --environment production --pacticipant GettingStartedOrderWeb

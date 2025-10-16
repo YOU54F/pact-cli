@@ -73,8 +73,8 @@ foreach ($uuid in $uuids) {
 }
 
 & $BIN 'pact-broker' create-environment --name production --production
-& $BIN 'pact-broker' publish --dir tests/pacts -r
-& $BIN 'pact-broker' publish --dir tests/pacts -a foo --branch bar
+& $BIN 'pact-broker' publish tests/pacts -r
+& $BIN 'pact-broker' publish tests/pacts -a foo --branch bar
 try {
     & $BIN 'pact-broker' can-i-deploy --pacticipant GettingStartedOrderWeb --version foo --to prod
 } catch {
