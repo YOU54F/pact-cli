@@ -16,22 +16,22 @@ if ($architecture -eq "x64") {
     Write-Host "Unsupported architecture: $architecture"
     exit 1
 }
-$url = "https://github.com/you54f/pact-cli/releases/download/$tag/pact-cli-$architecture-windows-msvc.exe"
+$url = "https://github.com/you54f/pact-cli/releases/download/$tag/pact-$architecture-windows-msvc.exe"
 
 
 Write-Host "Downloading $url to $pactDir"
-$exe = Join-Path $pactDir "pact-cli.exe"
+$exe = Join-Path $pactDir "pact.exe"
 if (Test-Path "$exe") {
   Remove-Item $exe
 }
 
 $downloader = new-object System.Net.WebClient
 $downloader.DownloadFile($url, $exe)
-Write-Host "--> Downloaded pact-cli to $exe"
-# Write-Host "--> Setting executable permissions for pact-cli"
+Write-Host "--> Downloaded pact to $exe"
+# Write-Host "--> Setting executable permissions for pact"
 # chmod +x $exe
-Write-Host "--> Adding pact-cli to path"
+Write-Host "--> Adding pact to path"
 $pactBinariesPath = "$pactDir"
 $env:PATH += ";$pactBinariesPath"
 Write-Host $env:PATH
-pact-cli.exe --help
+pact.exe --help

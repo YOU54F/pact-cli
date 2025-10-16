@@ -104,20 +104,20 @@ esac
 
 case $os in
 *'windows'*)
-  filename="pact-cli-${os}.exe"
+  filename="pact-${os}.exe"
   ;;
 *'macos'* | *'linux'*)
-  filename="pact-cli-${os}"
+  filename="pact-${os}"
   ;;
 esac
 
-PROJECT_NAME=pact-cli
+PROJECT_NAME=pact
 echo 
 echo "-------------"
 echo "Downloading ${filename} - version ${PACT_CLI_VERSION}"
 echo "-------------"
 echo "Url: https://github.com/you54f/pact-cli/releases/download/${PACT_CLI_VERSION}/${filename}"
-($downloader https://github.com/you54f/pact-cli/releases/download/"${PACT_CLI_VERSION}"/"${filename}" && echo downloaded "${filename}") || (echo "Failed to download pact-cli, check the version and url." && exit 1)
+($downloader https://github.com/you54f/pact-cli/releases/download/"${PACT_CLI_VERSION}"/"${filename}" && echo downloaded "${filename}") || (echo "Failed to download pact, check the version and url." && exit 1)
 echo "$PROJECT_NAME ${PACT_CLI_VERSION} installed to $(pwd)"
 echo "-------------------"
 echo "available commands:"
@@ -130,7 +130,7 @@ else
   mv "$filename" "$PROJECT_NAME"
   chmod +x "$PROJECT_NAME"
 fi
-./pact-cli --help
+./pact --help
 echo "-------------------"
 if [ "$GITHUB_ENV" ]; then
 echo "Added the following to your path to make ${PROJECT_NAME} available:"

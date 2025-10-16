@@ -6,7 +6,7 @@ if [ -z "$1" ]; then
 fi
 
 TARGET=$1
-BINARY_NAME="pact-cli"
+BINARY_NAME="pact"
 OUTPUT_DIR="dist"
 
 while [[ $# -gt 0 ]]; do

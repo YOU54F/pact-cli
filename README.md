@@ -91,8 +91,7 @@ Example
  
     - name: Show help commands
       run: |
-        pact-cli --help
-        pact-cli pactflow --help
+        pact --help
 ```
 
 ### Docker
@@ -116,13 +115,13 @@ tags format
 ### All commands
 
 ```console
-$ pact-cli --help
+$ pact --help
 Pact consolidated CLI - pact_core_mock_server, pact_verifier, pact-stub-server, pact-plugin-cli, pact-broker-cli in a single binary
 
-Usage: pact-cli [OPTIONS] [COMMAND]
+Usage: pact [OPTIONS] [COMMAND]
 
 Commands:
-  pact-broker  A Rust and CLI client for the Pact Broker. Publish and retrieve pacts and verification results.
+  broker       A Rust and CLI client for the Pact Broker. Publish and retrieve pacts and verification results.
   pactflow     PactFlow specific commands
   completions  Generates completion scripts for your shell
   plugin       CLI utility for Pact plugins
@@ -137,13 +136,13 @@ Options:
 
 ```
 
-### `pact-broker`
+### `broker`
 
 ```console
-$ pact-cli pact-broker --help
+$ pact broker --help
 A Rust and CLI client for the Pact Broker. Publish and retrieve pacts and verification results.
 
-Usage: pact-cli pact-broker [OPTIONS] [COMMAND]
+Usage: pact broker [OPTIONS] [COMMAND]
 
 Commands:
   publish                       Publishes pacts to the Pact Broker
@@ -185,10 +184,10 @@ Options:
 ### `pactflow`
 
 ```console
-$ pact-cli pactflow --help
+$ pact pactflow --help
 PactFlow specific commands
 
-Usage: pact-cli pactflow [OPTIONS] [COMMAND]
+Usage: pact pactflow [OPTIONS] [COMMAND]
 
 Commands:
   publish-provider-contract  Publish provider contract to PactFlow
@@ -203,10 +202,10 @@ Options:
 ### `plugin`
 
 ```console
-$ pact-cli plugin --help
+$ pact plugin --help
 CLI utility for Pact plugins
 
-Usage: pact-cli plugin [OPTIONS] <COMMAND>
+Usage: pact plugin [OPTIONS] <COMMAND>
 
 Commands:
   list        List installed or available plugins
@@ -231,10 +230,10 @@ Options:
 ### `mock`
 
 ```console
-$ pact-cli mock --help
+$ pact mock --help
 Standalone Pact mock server
 
-Usage: pact-cli mock [OPTIONS] [COMMAND]
+Usage: pact mock [OPTIONS] [COMMAND]
 
 Commands:
   start            Starts the master mock server
@@ -260,10 +259,10 @@ Options:
 ### `verifier`
 
 ```console
-$ pact-cli verifier --help
+$ pact verifier --help
 Standalone pact verifier for provider pact verification
 
-Usage: pact-cli verifier [OPTIONS]
+Usage: pact verifier [OPTIONS]
 
 Options:
       --help               Print help and exit
@@ -367,10 +366,10 @@ Development options:
 ### `stub`
 
 ```console
-$ pact-cli stub --help
+$ pact stub --help
 Pact Stub Server 0.6.3
 
-Usage: pact-cli stub [OPTIONS]
+Usage: pact stub [OPTIONS]
 
 Options:
   -l, --loglevel <loglevel>

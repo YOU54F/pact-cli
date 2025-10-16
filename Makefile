@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 TARGET=
 USE_CROSS=
-BINARY_NAME?=pact-cli
+BINARY_NAME?=pact
 SLIM=false
 BUILDER=cargo
 

@@ -3,7 +3,7 @@
 To build a single architecture docker image (change the version as required):
 
 ```shell
-> docker build -t pactfoundation/pact-cli:0.6.0 --build-arg VERSION=0.6.0 .
+> docker build -t pactfoundation/pact:0.6.0 --build-arg VERSION=0.6.0 .
 ```
 
 To build a multi-architecture docker image:
@@ -20,14 +20,14 @@ Build images
 
 ```shell
 export DOCKER_TAG=0.6.0
-docker buildx build -t you54f/pact-cli:$DOCKER_TAG --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 .
-docker buildx build -t you54f/pact-cli:latest --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 .
+docker buildx build -t you54f/pact:$DOCKER_TAG --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 .
+docker buildx build -t you54f/pact:latest --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 .
 ```
 
 Build & Push images - will use cached images if available
 
 ```shell
 export DOCKER_TAG=0.6.0
-docker buildx build -t you54f/pact-cli:$DOCKER_TAG --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 --push .
-docker buildx build -t you54f/pact-cli:latest --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 --push .
+docker buildx build -t you54f/pact:$DOCKER_TAG --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 --push .
+docker buildx build -t you54f/pact:latest --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 --push .
 ```
