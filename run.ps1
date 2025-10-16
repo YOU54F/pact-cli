@@ -2,13 +2,13 @@
 $ErrorActionPreference = "Stop"
 
 $BIN = $env:BIN
-if (-not $BIN) { $BIN = "pact-cli" }
+if (-not $BIN) { $BIN = "pact" }
 
 & $BIN --help
-& $BIN pact-broker --help
+& $BIN broker --help
 & $BIN pactflow --help
 & $BIN completions --help
-& $BIN 'pact-broker' docker --help
+& $BIN 'broker' docker --help
 & $BIN plugin --help
 & $BIN plugin list --help
 & $BIN plugin list installed --help
@@ -38,26 +38,26 @@ if (-not $BIN) { $BIN = "pact-cli" }
 & $BIN mock shutdown --help
 & $BIN mock shutdown-master --help
 
-try { & $BIN 'pact-broker' ruby stop } catch {}
+try { & $BIN 'broker' ruby stop } catch {}
 
-& $BIN 'pact-broker' ruby start -d
-& $BIN 'pact-broker' ruby info
-& $BIN 'pact-broker' list-latest-pact-versions
-& $BIN 'pact-broker' create-environment --name name_foo1
-& $BIN 'pact-broker' create-environment --name name_foo2 --display-name display_name_foo
-& $BIN 'pact-broker' create-environment --name name_foo3 --display-name display_name_foo --contact-name contact_name_foo
-& $BIN 'pact-broker' create-environment --name name_foo4 --display-name display_name_foo --contact-name contact_name_foo --contact-email-address contact.email.address@foo.bar
+& $BIN 'broker' ruby start -d
+& $BIN 'broker' ruby info
+& $BIN 'broker' list-latest-pact-versions
+& $BIN 'broker' create-environment --name name_foo1
+& $BIN 'broker' create-environment --name name_foo2 --display-name display_name_foo
+& $BIN 'broker' create-environment --name name_foo3 --display-name display_name_foo --contact-name contact_name_foo
+& $BIN 'broker' create-environment --name name_foo4 --display-name display_name_foo --contact-name contact_name_foo --contact-email-address contact.email.address@foo.bar
 
-$ENV_UUID = (& $BIN 'pact-broker' create-environment --name name_foo5 --output=id).Trim()
-& $BIN 'pact-broker' describe-environment --uuid $ENV_UUID
-& $BIN 'pact-broker' update-environment --uuid $ENV_UUID --name name_foo6
-& $BIN 'pact-broker' update-environment --uuid $ENV_UUID --name name_foo7 --display-name display_name_foo6
-& $BIN 'pact-broker' update-environment --uuid $ENV_UUID --name name_foo8 --contact-name contact_name_foo8
-& $BIN 'pact-broker' update-environment --uuid $ENV_UUID --name name_foo9 --contact-name contact_name_foo9 --contact-email-address contact_name_foo7
-& $BIN 'pact-broker' delete-environment --uuid $ENV_UUID
+$ENV_UUID = (& $BIN 'broker' create-environment --name name_foo5 --output=id).Trim()
+& $BIN 'broker' describe-environment --uuid $ENV_UUID
+& $BIN 'broker' update-environment --uuid $ENV_UUID --name name_foo6
+& $BIN 'broker' update-environment --uuid $ENV_UUID --name name_foo7 --display-name display_name_foo6
+& $BIN 'broker' update-environment --uuid $ENV_UUID --name name_foo8 --contact-name contact_name_foo8
+& $BIN 'broker' update-environment --uuid $ENV_UUID --name name_foo9 --contact-name contact_name_foo9 --contact-email-address contact_name_foo7
+& $BIN 'broker' delete-environment --uuid $ENV_UUID
 
 # Delete all environments except the first and last
-$envs = & $BIN 'pact-broker' list-environments
+$envs = & $BIN 'broker' list-environments
 $lines = $envs -split "`n"
 
 # Find lines that look like environment rows (start with │ and contain ┆)
@@ -69,36 +69,36 @@ $uuids = $envRows | ForEach-Object {
 }
 
 foreach ($uuid in $uuids) {
-    & $BIN 'pact-broker' delete-environment --uuid $uuid
+    & $BIN 'broker' delete-environment --uuid $uuid
 }
 
-& $BIN 'pact-broker' create-environment --name production --production
-& $BIN 'pact-broker' publish tests/pacts -r
-& $BIN 'pact-broker' publish tests/pacts -a foo --branch bar
+& $BIN 'broker' create-environment --name production --production
+& $BIN 'broker' publish tests/pacts -r
+& $BIN 'broker' publish tests/pacts -a foo --branch bar
 try {
-    & $BIN 'pact-broker' can-i-deploy --pacticipant GettingStartedOrderWeb --version foo --to prod
+    & $BIN 'broker' can-i-deploy --pacticipant GettingStartedOrderWeb --version foo --to prod
 } catch {
     Write-Host "can-i-deploy fails due to no verification result - expected"
 }
-& $BIN 'pact-broker' can-i-deploy --pacticipant GettingStartedOrderWeb --version foo --to prod --dry-run
-& $BIN 'pact-broker' record-deployment --version foo --environment production --pacticipant GettingStartedOrderWeb
-& $BIN 'pact-broker' record-undeployment --environment production --pacticipant GettingStartedOrderWeb
-& $BIN 'pact-broker' record-release --version foo --environment production --pacticipant GettingStartedOrderWeb
-& $BIN 'pact-broker' record-support-ended --version foo --environment production --pacticipant GettingStartedOrderWeb
-& $BIN 'pact-broker' create-or-update-pacticipant --name foo --main-branch main --repository-url http://foo.bar
-& $BIN 'pact-broker' describe-pacticipant --name foo
-& $BIN 'pact-broker' list-pacticipants
-& $BIN 'pact-broker' create-webhook https://localhost --request POST --contract-published
+& $BIN 'broker' can-i-deploy --pacticipant GettingStartedOrderWeb --version foo --to prod --dry-run
+& $BIN 'broker' record-deployment --version foo --environment production --pacticipant GettingStartedOrderWeb
+& $BIN 'broker' record-undeployment --environment production --pacticipant GettingStartedOrderWeb
+& $BIN 'broker' record-release --version foo --environment production --pacticipant GettingStartedOrderWeb
+& $BIN 'broker' record-support-ended --version foo --environment production --pacticipant GettingStartedOrderWeb
+& $BIN 'broker' create-or-update-pacticipant --name foo --main-branch main --repository-url http://foo.bar
+& $BIN 'broker' describe-pacticipant --name foo
+& $BIN 'broker' list-pacticipants
+& $BIN 'broker' create-webhook https://localhost --request POST --contract-published
 
-$WEBHOOK_UUID = (& $BIN 'pact-broker' create-webhook https://localhost --request POST --contract-published | ConvertFrom-Json).uuid
-& $BIN 'pact-broker' create-or-update-webhook https://foo.bar --request POST --uuid $WEBHOOK_UUID --provider-verification-succeeded
-& $BIN 'pact-broker' test-webhook --uuid $WEBHOOK_UUID
-& $BIN 'pact-broker' create-or-update-version --version foo --pacticipant foo --branch bar --tag baz
-& $BIN 'pact-broker' create-version-tag --version foo --pacticipant foo --tag bar
-& $BIN 'pact-broker' describe-version --pacticipant foo
-& $BIN 'pact-broker' can-i-merge --pacticipant foo --version foo
-& $BIN 'pact-broker' delete-branch --branch bar --pacticipant foo
-& $BIN 'pact-broker' describe-pacticipant --name foo
-& $BIN 'pact-broker' generate-uuid
+$WEBHOOK_UUID = (& $BIN 'broker' create-webhook https://localhost --request POST --contract-published | ConvertFrom-Json).uuid
+& $BIN 'broker' create-or-update-webhook https://foo.bar --request POST --uuid $WEBHOOK_UUID --provider-verification-succeeded
+& $BIN 'broker' test-webhook --uuid $WEBHOOK_UUID
+& $BIN 'broker' create-or-update-version --version foo --pacticipant foo --branch bar --tag baz
+& $BIN 'broker' create-version-tag --version foo --pacticipant foo --tag bar
+& $BIN 'broker' describe-version --pacticipant foo
+& $BIN 'broker' can-i-merge --pacticipant foo --version foo
+& $BIN 'broker' delete-branch --branch bar --pacticipant foo
+& $BIN 'broker' describe-pacticipant --name foo
+& $BIN 'broker' generate-uuid
 
-& $BIN 'pact-broker' ruby stop
+& $BIN 'broker' ruby stop

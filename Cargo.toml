@@ -68,9 +68,9 @@ indexmap = { version = "1.9.3", features = ["std"] }
 
 
 # [lib]
-# name = "pact-cli"  # Name of the library
+# name = "pact"  # Name of the library
 # crate-type = ["cdylib", "staticlib"]  # For compiling to a shared library
 
 [[bin]]
-name = "pact-cli"
+name = "pact"
 path = "src/bin.rs"

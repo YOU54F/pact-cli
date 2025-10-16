@@ -83,14 +83,14 @@ jobs:
         shell: bash
         env:
           PACT_BROKER_BASE_URL: http://localhost:9292
-          BIN: target/${{ inputs.target }}/release/pact-cli
+          BIN: target/${{ inputs.target }}/release/pact
       - name: test pact-cli with locally running Pact Broker (Windows)
         if: ${{ runner.os == 'Windows' && inputs.target != 'aarch64-pc-windows-msvc' }}
         run: ./run.ps1
         shell: pwsh
         env:
           PACT_BROKER_BASE_URL: http://localhost:9292
-          BIN: target/${{ inputs.target }}/release/pact-cli.exe
+          BIN: target/${{ inputs.target }}/release/pact.exe
       - name: Create dist
         id: dist
         shell: bash

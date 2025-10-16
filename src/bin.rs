@@ -13,7 +13,7 @@ pub fn main() -> Result<(), ExitCode> {
     let cloned_app = app.clone();
     match app.clone().try_get_matches() {
         Ok(results) => match results.subcommand() {
-            Some(("pact-broker", args)) | Some(("pactflow", args)) => {
+            Some(("broker", args)) | Some(("pactflow", args)) => {
                 // if args subcommand is docker or standalone, offset to those subcommands
                 let subcommand = args.subcommand_name();
                 match subcommand {
@@ -54,11 +54,11 @@ pub fn main() -> Result<(), ExitCode> {
                 let error_message = err.render().to_string();
                 let versions = [
                     (
-                        "pact-cli-verifier",
+                        "pact-verifier",
                         pact_verifier_cli::print_version as fn(),
                     ),
-                    ("pact-cli-mock", pact_mock_server_cli::print_version as fn()),
-                    ("pact-cli-stub", pact_stub_server_cli::print_version as fn()),
+                    ("pact-mock", pact_mock_server_cli::print_version as fn()),
+                    ("pact-stub", pact_stub_server_cli::print_version as fn()),
                 ];
                 for (name, print_fn) in &versions {
                     if error_message.contains(name) {
@@ -98,10 +98,10 @@ fn generate_completions(args: &ArgMatches) -> Result<(), ExitCode> {
             return Err(ExitCode::from(2));
         }
     };
-    match generate_to(shell_enum, &mut cmd, "pact-cli".to_string(), &out_dir) {
+    match generate_to(shell_enum, &mut cmd, "pact".to_string(), &out_dir) {
         Ok(path) => {
             println!(
-                "ℹ️  {} shell completions for pact-cli written to {}",
+                "ℹ️  {} shell completions for pact written to {}",
                 shell_enum,
                 path.display()
             );

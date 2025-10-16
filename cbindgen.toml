@@ -66,4 +66,4 @@ prefix_with_name = true
 # [parse.expand]
 
 # # Expand macros for `pact_matching_ffi`.
-# crates = ["pact-cli_ffi"]
+# crates = ["pact_cli_ffi"]

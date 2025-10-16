@@ -8,11 +8,11 @@ pub mod pact_broker_docker;
 pub mod pact_broker_ruby;
 
 pub fn build_cli() -> Command {
-    let app = Command::new("pact-cli")
+    let app = Command::new("pact")
         .about("Pact consolidated CLI - pact_core_mock_server, pact_verifier, pact-stub-server, pact-plugin-cli, pact-broker-cli in a single binary")
         .subcommand(
             pact_broker_cli::cli::pact_broker_client::add_pact_broker_client_command()
-            .name("pact-broker")
+            .name("broker")
             .subcommand(add_ruby_broker_subcommand())
             .subcommand(add_docker_broker_subcommand())
         )

@@ -32,10 +32,9 @@ jobs:
  
     - name: Show help commands
       run: |
-        pact-cli --help
-        pact-cli pactflow --help
+        pact --help
 
-    - name: Run pact-broker commands
+    - name: Run pactbroker commands
       shell: bash
       run: ./run.sh
       env:
