@@ -77,6 +77,7 @@ ${BIN} broker delete-branch --branch bar --pacticipant foo
 ${BIN} broker describe-pacticipant --name foo
 ${BIN} broker generate-uuid
 
+unset PACT_BROKER_BASE_URL
 ./examples/mock_example-rust.sh
 ./examples/stub_example-rust.sh
 ./examples/verifier_example-rust.sh
