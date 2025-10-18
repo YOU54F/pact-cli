@@ -220,8 +220,8 @@ Commands:
 Options:
   -y, --yes                Automatically answer Yes for all prompts
   -d, --debug              Enable debug level logs
-      --log-level <LEVEL>  Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
   -t, --trace              Enable trace level logs
+      --log-level <LEVEL>  Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
   -v, --version            Print CLI version
   -h, --help               Print help
 
@@ -246,12 +246,12 @@ Commands:
 
 Options:
       --help                 Print help and exit
-      --log-level <LEVEL>    Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
   -v, --version              Print version information and exit
   -p, --port <port>          port the master mock server runs on (defaults to 8080)
   -h, --host <host>          hostname the master mock server runs on (defaults to localhost)
   -l, --loglevel <loglevel>  Log level for mock servers to write to the log file (defaults to info) [possible values: error, warn, info, debug, trace, none]
       --no-term-log          Turns off using terminal ANSI escape codes
+      --log-level <LEVEL>    Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
       --no-file-log          Do not log to an output file
 
 ```
@@ -266,8 +266,8 @@ Usage: pact verifier [OPTIONS]
 
 Options:
       --help               Print help and exit
-      --log-level <LEVEL>  Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
   -v, --version            Print version information and exit
+      --log-level <LEVEL>  Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
 
 Logging options:
   -l, --loglevel <loglevel>  Log level to emit log events at (defaults to warn) [possible values: error, warn, info, debug, trace, none]
@@ -376,8 +376,6 @@ Options:
           Log level (defaults to info) [default: info] [possible values: error, warn, info, debug, trace, none]
   -f, --file <file>
           Pact file to load (can be repeated)
-      --log-level <LEVEL>
-          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
   -d, --dir <dir>
           Directory of pact files to load (can be repeated)
   -e, --extension <ext>
@@ -386,6 +384,8 @@ Options:
           URL of pact file to fetch (can be repeated)
   -b, --broker-url <broker-url>
           URL of the pact broker to fetch pacts from [env: PACT_BROKER_BASE_URL=]
+      --log-level <LEVEL>
+          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
       --user <user>
           User and password to use when fetching pacts from URLS or Pact Broker in user:password form
   -t, --token <token>
@@ -413,6 +413,38 @@ Options:
   -h, --help
           Print help
 
+```
+
+## Open Telemetry
+
+The `pact` cli supports native opentelemetry for traces and application logs.
+
+It is opt-in via `--enable-otel`, and by default will output `traces` to `stdout`.
+
+Application logs, can optionally be exported with `--enable-otel-logs`, output is controlled by `--log-level`, which currently defaults to `none`
+
+By default, `--otel-exporter-endpoint` will route to `http://localhost:4318` and will add `/v1/traces` to any provided endpoint..
+
+```sh
+Options:
+      --enable-otel
+          Enable OpenTelemetry tracing
+      --enable-otel-logs
+          Enable OpenTelemetry logging
+      --otel-exporter <otel-exporter>
+          The OpenTelemetry exporter to use (stdout, otlp) [default: stdout] [env: OTEL_TRACES_EXPORTER=] [possible values: stdout, otlp]
+      --otel-exporter-endpoint <otel-exporter-endpoint>
+          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp) [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
+      --otel-exporter-protocol <otel-exporter-protocol>
+          The protocol to use for the OTLP exporter (http/protobuf, grpc) [env: OTEL_EXPORTER_OTLP_PROTOCOL=] [default: http] [possible values: http, http/protobuf, grpc]
+```
+
+Standard otel environemnt variables are followed
+
+```sh
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"
+export OTEL_TRACES_EXPORTER="otlp"
+export OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf"
 ```
 
 ## Ecosystem

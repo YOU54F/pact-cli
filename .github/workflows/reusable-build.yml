@@ -83,7 +83,7 @@ jobs:
         shell: bash
         env:
           PACT_BROKER_BASE_URL: http://localhost:9292
-          BIN: target/${{ inputs.target }}/release/pact
+          BIN: target/${{ inputs.target }}/release/pact --enable-otel
       - name: test pact-cli with locally running Pact Broker (Windows)
         if: ${{ runner.os == 'Windows' && inputs.target != 'aarch64-pc-windows-msvc' }}
         run: ./run.ps1
