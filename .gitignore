@@ -11,3 +11,7 @@ include/
 
 ## Distribution files
 /dist
+
+# Logs and temporary files
+/tmp
+log

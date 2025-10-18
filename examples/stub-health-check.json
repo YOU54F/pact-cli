@@ -1,0 +1,34 @@
+{
+  "consumer": {
+    "name": "healthcheck-consumer"
+  },
+  "provider": {
+    "name": "stub-server"
+  },
+  "interactions": [
+    {
+      "description": "foo",
+      "request": {
+        "method": "GET",
+        "path": "/healthcheck",
+        "headers": {
+          "X-Pact-Stub-Server": "true"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "ok": true
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}

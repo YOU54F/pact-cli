@@ -2227,9 +2227,9 @@ dependencies = [
 
 [[package]]
 name = "pact-broker-cli"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60b7325f4ecd43d8c7d13dd7d5ce64f4e5ca61f0085ae23fbed5d287e62d5c68"
+checksum = "f55c7cd07df42619a3922cdd5246fa134aaf90ebad538030c34641b7c92a6276"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -2448,7 +2448,7 @@ dependencies = [
 [[package]]
 name = "pact_mock_server"
 version = "2.1.4"
-source = "git+https://github.com/YOU54F/pact-core-mock-server.git?branch=feat%2Fcli_as_lib#fc2925f6feec4116d397dd6ac95fb4fb6e3f6ee9"
+source = "git+https://github.com/YOU54F/pact-core-mock-server.git?branch=feat%2Fadd-pact-specification-option-to-cli#3c49532d0502ea508696993b7fa88724ad2f8a14"
 dependencies = [
  "anyhow",
  "bytes",
@@ -2481,7 +2481,7 @@ dependencies = [
 [[package]]
 name = "pact_mock_server_cli"
 version = "2.0.0-beta.1"
-source = "git+https://github.com/YOU54F/pact-core-mock-server.git?branch=feat%2Fcli_as_lib#fc2925f6feec4116d397dd6ac95fb4fb6e3f6ee9"
+source = "git+https://github.com/YOU54F/pact-core-mock-server.git?branch=feat%2Fadd-pact-specification-option-to-cli#3c49532d0502ea508696993b7fa88724ad2f8a14"
 dependencies = [
  "anyhow",
  "bytes",
@@ -2694,12 +2694,12 @@ dependencies = [
 
 [[package]]
 name = "pem"
-version = "3.0.5"
+version = "3.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38af38e8470ac9dee3ce1bae1af9c1671fffc44ddfd8bd1d0a3445bf349a8ef3"
+checksum = "1d30c53c26bc5b31a98cd02d20f25a7c8567146caf63ed593a9d87b2775291be"
 dependencies = [
  "base64 0.22.1",
- "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -4728,9 +4728,9 @@ dependencies = [
 
 [[package]]
 name = "webpki-roots"
-version = "1.0.2"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e8983c3ab33d6fb807cfcdad2491c4ea8cbc8ed839181c7dfd9c67c83e261b2"
+checksum = "32b130c0d2d49f8b6889abc456e795e82525204f27c42cf767cf0d7734e089b8"
 dependencies = [
  "rustls-pki-types",
 ]

@@ -38,6 +38,7 @@ ${BIN} mock shutdown-master --help
 
 ${BIN} broker ruby stop || true
 ${BIN} broker ruby start -d
+
 ${BIN} broker ruby info
 ${BIN} broker list-latest-pact-versions
 ${BIN} broker create-environment --name name_foo1
@@ -76,6 +77,8 @@ ${BIN} broker delete-branch --branch bar --pacticipant foo
 ${BIN} broker describe-pacticipant --name foo
 ${BIN} broker generate-uuid
 
+./examples/mock_example-rust.sh
+./examples/stub_example-rust.sh
+./examples/verifier_example-rust.sh
 
 ${BIN} broker ruby stop
-
