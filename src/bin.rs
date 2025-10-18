@@ -8,37 +8,71 @@ use std::{process::ExitCode, str::FromStr};
 use crate::cli::pact_broker_docker;
 use crate::cli::pact_broker_ruby;
 
-pub fn main() -> Result<(), ExitCode> {
+pub fn main() -> ExitCode {
     let app = cli::build_cli();
-    let cloned_app = app.clone();
-    match app.clone().try_get_matches() {
+    let res = match app.clone().try_get_matches() {
         Ok(results) => match results.subcommand() {
-            Some(("broker", args)) | Some(("pactflow", args)) => {
+            Some(("broker", args)) => {
                 // if args subcommand is docker or standalone, offset to those subcommands
                 let subcommand = args.subcommand_name();
                 match subcommand {
                     Some("docker") => {
                         let docker_args = args.subcommand_matches("docker").unwrap();
-                        return pact_broker_docker::run(docker_args);
+                        return match pact_broker_docker::run(docker_args) {
+                            Ok(_) => ExitCode::SUCCESS,
+                            Err(code) => code,
+                        };
                         // return Ok(());
                     }
                     Some("ruby") => {
                         let standalone_args = args.subcommand_matches("ruby").unwrap();
-                        pact_broker_ruby::run(standalone_args);
-                        return Ok(());
+                        let res = pact_broker_ruby::run(standalone_args);
+                        match res {
+                            Ok(_) => return ExitCode::SUCCESS,
+                            Err(err) => {
+                                return {
+                                    eprintln!("{}", err);
+                                    ExitCode::from(1)
+                                }
+                            }
+                        }
                     }
                     _ => {}
                 }
 
                 let raw_args: Vec<String> = std::env::args().collect();
                 let matches_result = Ok(args.clone());
-                pact_broker_cli::handle_matches(&matches_result, Some(raw_args))
+                match pact_broker_cli::handle_matches(&matches_result, Some(raw_args)) {
+                    Ok(()) => Ok(()),
+                    Err(e) => Err(e),
+                }
             }
-            Some(("stub", args)) => pact_stub_server_cli::process_stub_command(args),
-            Some(("completions", args)) => generate_completions(args),
-            Some(("plugin", args)) => pact_plugin_cli::process_plugin_command(args),
-            Some(("mock", args)) => pact_mock_server_cli::process_mock_command(args),
-            Some(("verifier", args)) => pact_verifier_cli::process_verifier_command(args),
+            Some(("pactflow", args)) => {
+                match pact_broker_cli::cli::pactflow_client::run(args, std::env::args().collect()) {
+                    Ok(_) => Ok(()),
+                    Err(error) => Err(ExitCode::from(error as u8)),
+                }
+            }
+            Some(("stub", args)) => {
+                let res = pact_stub_server_cli::process_stub_command(args);
+                res
+            }
+            Some(("completions", args)) => {
+                let res = generate_completions(args);
+                res
+            }
+            Some(("plugin", args)) => {
+                let res = pact_plugin_cli::process_plugin_command(args);
+                res
+            }
+            Some(("mock", args)) => {
+                let res = pact_mock_server_cli::process_mock_command(args);
+                res
+            }
+            Some(("verifier", args)) => {
+                let res = pact_verifier_cli::process_verifier_command(args);
+                res
+            }
             _ => {
                 cli::build_cli().print_help().unwrap();
                 Ok(())
@@ -47,16 +81,12 @@ pub fn main() -> Result<(), ExitCode> {
 
         Err(err) => match err.kind() {
             ErrorKind::DisplayHelp => {
-                // let _ = err.print();
                 err.exit();
             }
             ErrorKind::DisplayVersion => {
                 let error_message = err.render().to_string();
                 let versions = [
-                    (
-                        "pact-verifier",
-                        pact_verifier_cli::print_version as fn(),
-                    ),
+                    ("pact-verifier", pact_verifier_cli::print_version as fn()),
                     ("pact-mock", pact_mock_server_cli::print_version as fn()),
                     ("pact-stub", pact_stub_server_cli::print_version as fn()),
                 ];
@@ -64,14 +94,17 @@ pub fn main() -> Result<(), ExitCode> {
                     if error_message.contains(name) {
                         print_fn();
                         println!();
-                        return Ok(());
+                        return ExitCode::SUCCESS;
                     }
                 }
-                // let _ = err.print();
                 err.exit();
             }
             _ => err.exit(),
         },
+    };
+    match res {
+        Ok(_) => ExitCode::SUCCESS,
+        Err(code) => code,
     }
 }
 

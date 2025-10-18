@@ -1,11 +1,11 @@
+use clap::error::{ContextKind, ContextValue, ErrorKind};
+use clap::{Arg, ArgMatches, Command, Error};
 use std::{
     env, fs,
     io::{Read, Write},
     path::Path,
     process::{Command as Cmd, ExitStatus},
 };
-
-use clap::{Arg, ArgMatches, Command};
 
 pub fn add_ruby_broker_subcommand() -> Command {
     Command::new("ruby")
@@ -117,39 +117,18 @@ run app
     Ok(())
 }
 
-pub fn run(args: &ArgMatches) {
-    let home_dir = home::home_dir().unwrap_or_else(|| {
-        println!("Could not determine home directory.");
-        std::process::exit(1);
-    });
+pub fn run(args: &ArgMatches) -> Result<(), String> {
+    let home_dir = home::home_dir().ok_or("Could not determine home directory.")?;
     let broker_dir = home_dir.join(".pact/pact-broker");
     let pid_file_path = broker_dir.join("broker.pid");
 
     match args.subcommand() {
         Some(("start", args)) => {
-            // Check Ruby version
-            if let Err(msg) = check_ruby_version() {
-                println!("⚠️  {}", msg);
-                println!("Please install Ruby >= 3.1 and ensure it is on your PATH.");
-                std::process::exit(1);
-            }
+            check_ruby_version()?;
+            check_bundler_installed()?;
+            write_gemfile_and_config(&broker_dir)
+                .map_err(|e| format!("Failed to write Gemfile/config.ru: {}", e))?;
 
-            // check bundler version
-            if let Err(msg) = check_bundler_installed() {
-                println!("⚠️  {}", msg);
-                println!(
-                    "Please install Bundler (gem install bundler) and ensure it is on your PATH."
-                );
-                std::process::exit(1);
-            }
-
-            // Write Gemfile and config.ru
-            if let Err(e) = write_gemfile_and_config(&broker_dir) {
-                println!("Failed to write Gemfile/config.ru: {}", e);
-                std::process::exit(1);
-            }
-
-            // Run bundle install
             println!("🚀 Running bundle install in {}", broker_dir.display());
             let status = Cmd::new("ruby")
                 .arg("-S")
@@ -157,15 +136,15 @@ pub fn run(args: &ArgMatches) {
                 .arg("install")
                 .current_dir(&broker_dir)
                 .status()
-                .expect("Failed to run bundle install");
+                .map_err(|_| "Failed to run bundle install".to_string())?;
             if !status.success() {
-                println!("⚠️  bundle install failed. Please check your Ruby and Bundler setup.");
-                std::process::exit(1);
+                return Err(
+                    "⚠️  bundle install failed. Please check your Ruby and Bundler setup."
+                        .to_string(),
+                );
             }
 
-            // Prepare to start the broker
             println!("🚀 Starting Pact Broker with Puma...");
-            // Use 'ruby -S bundle' for better cross-platform compatibility
             let mut child_cmd = Cmd::new("ruby");
             child_cmd.arg("-S").arg("bundle");
             child_cmd
@@ -175,84 +154,80 @@ pub fn run(args: &ArgMatches) {
                 .arg(&pid_file_path)
                 .current_dir(&broker_dir);
 
-            if let Ok(mut child) = child_cmd.spawn() {
-                let pid = child.id();
-                println!("🚀 Pact Broker is running on http://localhost:9292");
-                println!("🚀 PID: {}", pid);
-                println!("🚀 PID file: {}", pid_file_path.display());
-                let mut pid_file_contents = String::from("unknown");
-                while !pid_file_contents.chars().all(char::is_numeric) {
-                    std::thread::sleep(std::time::Duration::from_secs(1));
-                    pid_file_contents = fs::read_to_string(&pid_file_path)
-                        .unwrap_or_else(|_| String::from("unknown"));
-                }
-                println!("Traveling Broker PID: {}", pid_file_contents);
+            let mut child = child_cmd
+                .spawn()
+                .map_err(|_| "Failed to start Pact Broker".to_string())?;
+            let pid = child.id();
+            println!("🚀 Pact Broker is running on http://localhost:9292");
+            println!("🚀 PID: {}", pid);
+            println!("🚀 PID file: {}", pid_file_path.display());
+            let mut pid_file_contents = String::from("unknown");
+            while !pid_file_contents.chars().all(char::is_numeric) {
+                std::thread::sleep(std::time::Duration::from_secs(1));
+                pid_file_contents =
+                    fs::read_to_string(&pid_file_path).unwrap_or_else(|_| String::from("unknown"));
+            }
+            println!("Traveling Broker PID: {}", pid_file_contents);
 
-                // we should support a detach flag to run the broker in the background
-                let detach = args.get_flag("detach");
-                if detach {
-                    println!("🚀 Running in the background");
-                    std::process::exit(0);
-                } else {
-                    while child.try_wait().unwrap().is_none() {
-                        std::thread::sleep(std::time::Duration::from_secs(1));
-                    }
-                    let _ = child.kill();
-                    let pid_file = fs::File::open(&pid_file_path);
-                    match pid_file {
-                        Ok(mut file) => {
-                            let mut pid = String::new();
-                            file.read_to_string(&mut pid).unwrap();
-                            let pid = pid.trim().parse::<u32>().unwrap();
-                            println!("🚀 Stopping Pact Broker with PID: {}", pid);
-                            #[cfg(windows)]
-                            Cmd::new("taskkill")
-                                .arg("/F")
-                                .arg("/PID")
-                                .arg(pid.to_string())
-                                .output()
-                                .expect("Failed to stop the process");
-                        }
-                        Err(_) => {
-                            println!("PID file not found");
-                        }
-                    }
-                    let _ = fs::remove_file(&pid_file_path);
-                    std::process::exit(0);
-                }
+            let detach = args.get_flag("detach");
+            if detach {
+                println!("🚀 Running in the background");
+                return Ok(());
             } else {
-                println!("Failed to start Pact Broker");
-                std::process::exit(1);
+                while child.try_wait().unwrap().is_none() {
+                    std::thread::sleep(std::time::Duration::from_secs(1));
+                }
+                let _ = child.kill();
+                let pid_file = fs::File::open(&pid_file_path);
+                match pid_file {
+                    Ok(mut file) => {
+                        let mut pid = String::new();
+                        file.read_to_string(&mut pid).unwrap();
+                        let pid = pid.trim().parse::<u32>().unwrap();
+                        println!("🚀 Stopping Pact Broker with PID: {}", pid);
+                        #[cfg(windows)]
+                        Cmd::new("taskkill")
+                            .arg("/F")
+                            .arg("/PID")
+                            .arg(pid.to_string())
+                            .output()
+                            .expect("Failed to stop the process");
+                    }
+                    Err(_) => {
+                        println!("PID file not found");
+                    }
+                }
+                let _ = fs::remove_file(&pid_file_path);
+                return Ok(());
             }
         }
         Some(("stop", _args)) => {
-            if let Ok(mut file) = fs::File::open(&pid_file_path) {
-                let mut pid = String::new();
-                file.read_to_string(&mut pid).unwrap();
-                let pid = pid.trim().parse::<u32>().unwrap();
-                println!("🚀 Stopping Pact Broker with PID: {}", pid);
-                #[cfg(windows)]
-                Cmd::new("taskkill")
-                    .arg("/F")
-                    .arg("/PID")
-                    .arg(pid.to_string())
-                    .output()
-                    .expect("⚠️ Failed to stop the broker");
+            let mut file = fs::File::open(&pid_file_path)
+                .map_err(|_| "⚠️ Pact Broker is not running".to_string())?;
+            let mut pid = String::new();
+            file.read_to_string(&mut pid).unwrap();
+            let pid = pid.trim().parse::<u32>().unwrap();
+            println!("🚀 Stopping Pact Broker with PID: {}", pid);
+            #[cfg(windows)]
+            Cmd::new("taskkill")
+                .arg("/F")
+                .arg("/PID")
+                .arg(pid.to_string())
+                .output()
+                .expect("⚠️ Failed to stop the broker");
 
-                #[cfg(not(windows))]
-                Cmd::new("kill")
-                    .arg(pid.to_string())
-                    .output()
-                    .expect("⚠️ Failed to stop the broker");
-                let _ = fs::remove_file(&pid_file_path);
-                println!("🛑 Pact Broker stopped");
-                std::process::exit(0);
-            } else {
-                println!("⚠️ Pact Broker is not running");
-                std::process::exit(1);
-            }
+            #[cfg(not(windows))]
+            Cmd::new("kill")
+                .arg(pid.to_string())
+                .output()
+                .expect("⚠️ Failed to stop the broker");
+            let _ = fs::remove_file(&pid_file_path);
+            println!("🛑 Pact Broker stopped");
+            Ok(())
         }
         Some(("remove", _args)) => {
+            let matches = add_ruby_broker_subcommand().get_matches_from(["ruby", "stop"]);
+            let _ = run(&matches);
             if let Ok(metadata) = fs::metadata(&broker_dir) {
                 if metadata.is_dir() {
                     if let Err(err) = fs::remove_dir_all(&broker_dir) {
@@ -264,6 +239,7 @@ pub fn run(args: &ArgMatches) {
             } else {
                 println!("broker_dir {} not found", broker_dir.display());
             }
+            Ok(())
         }
         Some(("info", _args)) => {
             fn check_directory_exists(directory: &Path) -> bool {
@@ -300,9 +276,11 @@ pub fn run(args: &ArgMatches) {
 
             let pact_broker_pid_exists = get_pid_from_file(&pid_file_path);
             println!("Pact broker pid: {:?}", pact_broker_pid_exists);
+            Ok(())
         }
         _ => {
             println!("⚠️  No option provided, try running ruby --help");
+            Ok(())
         }
     }
 }
