@@ -43,7 +43,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         echo "Invalid TARGETARCH: ${TARGETARCH}"; \
         exit 1; \
     fi \
-    && wget -O pact https://github.com/you54f/pact/releases/download/v${VERSION}/${BIN_FILE} && \
+    && wget -O pact https://github.com/you54f/pact-cli/releases/download/v${VERSION}/${BIN_FILE} && \
     chmod +x pact
 
 FROM --platform=linux/${TARGETARCH}${TARGETVARIANT:+/${TARGETVARIANT}} ${BASE_IMAGE}
