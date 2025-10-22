@@ -48,7 +48,8 @@ ${BIN} broker create-environment --name name_foo4 --display-name display_name_fo
 # remove --enable-otel arg from BIN to test otel functionality
 IS_OTEL_ENABLED=$(echo $BIN | grep -- '--enable-otel --log-level info' || true)
 if [ -n "$IS_OTEL_ENABLED" ]; then
-    BIN=${BIN//--enable-otel --log-level info/}
+    # Remove '--enable-otel --log-level info' from BIN in a portable way
+    BIN=$(echo "$BIN" | sed 's/--enable-otel --log-level info//g')
 fi
 export ENV_UUID=$(${BIN} broker create-environment --name name_foo5 --output=id)
 if [ -n "$IS_OTEL_ENABLED" ]; then
@@ -61,7 +62,7 @@ ${BIN} broker update-environment --uuid $ENV_UUID --name name_foo8 --contact-nam
 ${BIN} broker update-environment --uuid $ENV_UUID --name name_foo9 --contact-name contact_name_foo9 --contact-email-address contact_name_foo7
 ${BIN} broker delete-environment --uuid $ENV_UUID
 if [ -n "$IS_OTEL_ENABLED" ]; then
-    BIN=${BIN//--enable-otel --log-level info/}
+    BIN=$(echo "$BIN" | sed 's/--enable-otel --log-level info//g')
 fi
 ${BIN} broker list-environments | awk -F '│' '{print $2}' | sed -n '3,$p' | sed '$d' | awk '{print $1}' | xargs -I {} ${BIN} broker delete-environment --uuid {} 
 if [ -n "$IS_OTEL_ENABLED" ]; then
@@ -81,7 +82,7 @@ ${BIN} broker describe-pacticipant --name foo
 ${BIN} broker list-pacticipants
 ${BIN} broker create-webhook https://localhost --request POST --contract-published
 if [ -n "$IS_OTEL_ENABLED" ]; then
-    BIN=${BIN//--enable-otel --log-level info/}
+    BIN=$(echo "$BIN" | sed 's/--enable-otel --log-level info//g')
 fi
 export WEBHOOK_UUID=$(${BIN} broker create-webhook https://localhost --request POST --contract-published | jq .uuid -r)
 if [ -n "$IS_OTEL_ENABLED" ]; then
