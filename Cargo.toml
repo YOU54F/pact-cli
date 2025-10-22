@@ -31,12 +31,30 @@ home = "0.5.5"
 # pact-plugin-cli = { version = "*", path = "/Users/saf/dev/pact-foundation/pact-plugins/cli"}
 # pact_verifier_cli = { version = "*", path = "/Users/saf/dev/pact-foundation/pact-reference/rust/pact_verifier_cli"}
 # pact-broker-cli = { version = "*", path = "/Users/saf/dev/pact-foundation/pact-broker-cli"}
-pact-broker-cli = { version = "*", git = "https://github.com/pact-foundation/pact-broker-cli", branch = "fix/propogate-exit-code"}
+# pact-broker-cli = { version = "*", git = "https://github.com/pact-foundation/pact-broker-cli", branch = "feat/observability"}
 pact-stub-server = { version = "*", git = "https://github.com/YOU54F/pact-stub-server.git", branch = "feat/cli_as_lib"}
 pact_mock_server_cli = { version = "2.0.0-beta.1", git = "https://github.com/YOU54F/pact-core-mock-server.git", branch = "feat/add-pact-specification-option-to-cli"}
 pact-plugin-cli = { version = "*", git = "https://github.com/pact-foundation/pact-plugins", branch = "feat/cli_as_lib"}
 pact_verifier_cli = { version = "*",  git = "https://github.com/YOU54F/pact-reference", branch = "feat/cli_as_lib"}
-# pact-broker-cli = { version = "0.2.1" }
+pact-broker-cli = { version = "0.3.0" }
+
+## Otel
+
+tokio = { version = "1.48.0", features = ["rt-multi-thread", "macros", "time"] }
+opentelemetry = "0.31.0"
+opentelemetry-http = "0.31.0"
+opentelemetry_sdk = "0.31.0"
+opentelemetry-stdout = { version = "0.31.0", features = ["trace", "logs"] }
+opentelemetry-otlp = { version = "0.31.0", features = ["trace", "logs", "tls", "tls-roots"] }
+opentelemetry-semantic-conventions = "0.31.0"
+opentelemetry-appender-tracing = "0.31.0"
+tracing = { version= "0.1.41", features = ["std"]}
+tracing-subscriber = { version = "0.3.20", features = ["env-filter","registry", "std", "fmt"] }
+tracing-opentelemetry = "0.32.0"
+reqwest-tracing = { version = "0.5.8", features = ["tracing-opentelemetry_0_31_pkg", "opentelemetry_0_30"] }
+
+# reqwest-tracing = { version = "0.5.8", features = ["opentelemetry_0_30"] }
+# tracing-opentelemetry = "0.31.0"
 
 [dev-dependencies]
 trycmd = "0.15.0"

@@ -45,14 +45,28 @@ ${BIN} broker create-environment --name name_foo1
 ${BIN} broker create-environment --name name_foo2 --display-name display_name_foo
 ${BIN} broker create-environment --name name_foo3 --display-name display_name_foo --contact-name contact_name_foo
 ${BIN} broker create-environment --name name_foo4 --display-name display_name_foo --contact-name contact_name_foo --contact-email-address contact.email.address@foo.bar
+# remove --enable-otel arg from BIN to test otel functionality
+IS_OTEL_ENABLED=$(echo $BIN | grep -- '--enable-otel --log-level info' || true)
+if [ -n "$IS_OTEL_ENABLED" ]; then
+    BIN=${BIN//--enable-otel --log-level info/}
+fi
 export ENV_UUID=$(${BIN} broker create-environment --name name_foo5 --output=id)
+if [ -n "$IS_OTEL_ENABLED" ]; then
+    BIN="$BIN --enable-otel --log-level info"
+fi
 ${BIN} broker describe-environment --uuid $ENV_UUID
 ${BIN} broker update-environment --uuid $ENV_UUID --name name_foo6
 ${BIN} broker update-environment --uuid $ENV_UUID --name name_foo7 --display-name display_name_foo6
 ${BIN} broker update-environment --uuid $ENV_UUID --name name_foo8 --contact-name contact_name_foo8
 ${BIN} broker update-environment --uuid $ENV_UUID --name name_foo9 --contact-name contact_name_foo9 --contact-email-address contact_name_foo7
 ${BIN} broker delete-environment --uuid $ENV_UUID
+if [ -n "$IS_OTEL_ENABLED" ]; then
+    BIN=${BIN//--enable-otel --log-level info/}
+fi
 ${BIN} broker list-environments | awk -F '│' '{print $2}' | sed -n '3,$p' | sed '$d' | awk '{print $1}' | xargs -I {} ${BIN} broker delete-environment --uuid {} 
+if [ -n "$IS_OTEL_ENABLED" ]; then
+    BIN="$BIN --enable-otel --log-level info"
+fi
 ${BIN} broker create-environment --name production --production
 ${BIN} broker publish tests/pacts -r
 ${BIN} broker publish tests/pacts -a foo --branch bar
@@ -66,7 +80,13 @@ ${BIN} broker create-or-update-pacticipant --name foo --main-branch main --repos
 ${BIN} broker describe-pacticipant --name foo
 ${BIN} broker list-pacticipants
 ${BIN} broker create-webhook https://localhost --request POST --contract-published
+if [ -n "$IS_OTEL_ENABLED" ]; then
+    BIN=${BIN//--enable-otel --log-level info/}
+fi
 export WEBHOOK_UUID=$(${BIN} broker create-webhook https://localhost --request POST --contract-published | jq .uuid -r)
+if [ -n "$IS_OTEL_ENABLED" ]; then
+    BIN="$BIN --enable-otel --log-level info"
+fi
 ${BIN} broker create-or-update-webhook https://foo.bar --request POST --uuid $WEBHOOK_UUID --provider-verification-succeeded
 ${BIN} broker test-webhook --uuid $WEBHOOK_UUID
 ${BIN} broker create-or-update-version --version foo --pacticipant foo --branch bar --tag baz
@@ -77,6 +97,7 @@ ${BIN} broker delete-branch --branch bar --pacticipant foo
 ${BIN} broker describe-pacticipant --name foo
 ${BIN} broker generate-uuid
 
+unset PACT_BROKER_BASE_URL
 ./examples/mock_example-rust.sh
 ./examples/stub_example-rust.sh
 ./examples/verifier_example-rust.sh

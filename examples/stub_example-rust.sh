@@ -19,6 +19,6 @@ echo ''
 
 # AFTER SUITE stop mock service
 # this would be invoked by the test framework
-kill -2 $pid
+kill -9 $pid
 
 while [ kill -0 $pid 2> /dev/null ]; do sleep 0.5; done

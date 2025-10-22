@@ -1,15 +1,17 @@
-use clap::{command, Arg, Command, CommandFactory};
+use clap::{Arg, Command, CommandFactory};
 
 use crate::cli::{
     pact_broker_docker::add_docker_broker_subcommand, pact_broker_ruby::add_ruby_broker_subcommand,
 };
 
+pub mod otel;
 pub mod pact_broker_docker;
 pub mod pact_broker_ruby;
 
 pub fn build_cli() -> Command {
     let app = Command::new("pact")
         .about("Pact consolidated CLI - pact_core_mock_server, pact_verifier, pact-stub-server, pact-plugin-cli, pact-broker-cli in a single binary")
+        .args(add_otel_options_args())
         .subcommand(
             pact_broker_cli::cli::pact_broker_client::add_pact_broker_client_command()
             .name("broker")
@@ -45,4 +47,58 @@ fn add_completions_subcommand() -> Command {
         .num_args(1)
         .value_parser(clap::builder::NonEmptyStringValueParser::new())
         .help("The directory to write the shell completions to, default is the current directory"))
+}
+
+fn add_otel_options_args() -> Vec<Arg> {
+    vec![
+        Arg::new("enable-otel")
+            .long("enable-otel")
+            .help("Enable OpenTelemetry tracing")
+            .global(true)
+            // .hide(true)
+            .action(clap::ArgAction::SetTrue),
+        Arg::new("enable-otel-logs")
+            .long("enable-otel-logs")
+            .help("Enable OpenTelemetry logging")
+            .global(true)
+            // .hide(true)
+            .action(clap::ArgAction::SetTrue),
+        Arg::new("enable-otel-traces")
+            .long("enable-otel-traces")
+            .help("Enable OpenTelemetry traces")
+            .global(true)
+            // .hide(true)
+            .action(clap::ArgAction::SetTrue),
+        Arg::new("otel-exporter")
+            .long("otel-exporter")
+            .help("The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp)")
+            .num_args(1)
+            .global(true)
+            // .hide(true)
+            .env("OTEL_TRACES_EXPORTER")
+            .value_delimiter(',')
+            .value_parser(clap::builder::NonEmptyStringValueParser::new()),
+        Arg::new("otel-exporter-endpoint")
+            .long("otel-exporter-endpoint")
+            .help("The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp)")
+            .num_args(1)
+            .global(true)
+            // .hide(true)
+            .requires_if("otlp", "otel-exporter")
+            .env("OTEL_EXPORTER_OTLP_ENDPOINT")
+            .value_parser(clap::builder::NonEmptyStringValueParser::new()),
+        Arg::new("otel-exporter-protocol")
+            .long("otel-exporter-protocol")
+            .help("The protocol to use for the OTLP exporter (http/protobuf, http)")
+            .num_args(1)
+            .global(true)
+            // .hide(true)
+            .default_value("http")
+            .requires_if("otlp", "otel-exporter")
+            .env("OTEL_EXPORTER_OTLP_PROTOCOL")
+            .value_parser(clap::builder::PossibleValuesParser::new(&[
+                "http",
+                "http/protobuf",
+            ])),
+    ]
 }
