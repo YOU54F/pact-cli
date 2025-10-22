@@ -131,8 +131,22 @@ Commands:
   help         Print this message or the help of the given subcommand(s)
 
 Options:
-      --log-level <LEVEL>  Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
-  -h, --help               Print help
+      --enable-otel
+          Enable OpenTelemetry tracing
+      --enable-otel-logs
+          Enable OpenTelemetry logging
+      --enable-otel-traces
+          Enable OpenTelemetry traces
+      --otel-exporter <otel-exporter>
+          The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp) [env: OTEL_TRACES_EXPORTER=]
+      --otel-exporter-endpoint <otel-exporter-endpoint>
+          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp) [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
+      --otel-exporter-protocol <otel-exporter-protocol>
+          The protocol to use for the OTLP exporter (http/protobuf, http) [env: OTEL_EXPORTER_OTLP_PROTOCOL=] [default: http] [possible values: http, http/protobuf]
+      --log-level <LEVEL>
+          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
+  -h, --help
+          Print help
 
 ```
 
@@ -174,10 +188,26 @@ Commands:
   help                          Print this message or the help of the given subcommand(s)
 
 Options:
-  -o, --output <OUTPUT>    Value must be one of ["json", "text", "table", "pretty"] [default: text] [possible values: json, text, table, pretty]
-      --log-level <LEVEL>  Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
-  -h, --help               Print help
-  -V, --version            Print version
+      --enable-otel
+          Enable OpenTelemetry tracing
+  -o, --output <OUTPUT>
+          Value must be one of ["json", "text", "table", "pretty"] [default: text] [possible values: json, text, table, pretty]
+      --enable-otel-logs
+          Enable OpenTelemetry logging
+      --enable-otel-traces
+          Enable OpenTelemetry traces
+      --otel-exporter <otel-exporter>
+          The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp) [env: OTEL_TRACES_EXPORTER=]
+      --otel-exporter-endpoint <otel-exporter-endpoint>
+          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp) [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
+      --otel-exporter-protocol <otel-exporter-protocol>
+          The protocol to use for the OTLP exporter (http/protobuf, http) [env: OTEL_EXPORTER_OTLP_PROTOCOL=] [default: http] [possible values: http, http/protobuf]
+      --log-level <LEVEL>
+          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
+  -h, --help
+          Print help
+  -V, --version
+          Print version
 
 ```
 
@@ -194,8 +224,22 @@ Commands:
   help                       Print this message or the help of the given subcommand(s)
 
 Options:
-      --log-level <LEVEL>  Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
-  -h, --help               Print help
+      --enable-otel
+          Enable OpenTelemetry tracing
+      --enable-otel-logs
+          Enable OpenTelemetry logging
+      --enable-otel-traces
+          Enable OpenTelemetry traces
+      --otel-exporter <otel-exporter>
+          The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp) [env: OTEL_TRACES_EXPORTER=]
+      --otel-exporter-endpoint <otel-exporter-endpoint>
+          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp) [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
+      --otel-exporter-protocol <otel-exporter-protocol>
+          The protocol to use for the OTLP exporter (http/protobuf, http) [env: OTEL_EXPORTER_OTLP_PROTOCOL=] [default: http] [possible values: http, http/protobuf]
+      --log-level <LEVEL>
+          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
+  -h, --help
+          Print help
 
 ```
 
@@ -218,12 +262,30 @@ Commands:
   help        Print this message or the help of the given subcommand(s)
 
 Options:
-  -y, --yes                Automatically answer Yes for all prompts
-  -d, --debug              Enable debug level logs
-      --log-level <LEVEL>  Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
-  -t, --trace              Enable trace level logs
-  -v, --version            Print CLI version
-  -h, --help               Print help
+      --enable-otel
+          Enable OpenTelemetry tracing
+  -y, --yes
+          Automatically answer Yes for all prompts
+  -d, --debug
+          Enable debug level logs
+      --enable-otel-logs
+          Enable OpenTelemetry logging
+      --enable-otel-traces
+          Enable OpenTelemetry traces
+  -t, --trace
+          Enable trace level logs
+      --otel-exporter <otel-exporter>
+          The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp) [env: OTEL_TRACES_EXPORTER=]
+      --otel-exporter-endpoint <otel-exporter-endpoint>
+          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp) [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
+      --otel-exporter-protocol <otel-exporter-protocol>
+          The protocol to use for the OTLP exporter (http/protobuf, http) [env: OTEL_EXPORTER_OTLP_PROTOCOL=] [default: http] [possible values: http, http/protobuf]
+      --log-level <LEVEL>
+          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
+  -v, --version
+          Print CLI version
+  -h, --help
+          Print help
 
 ```
 
@@ -245,14 +307,34 @@ Commands:
   help             Print this message or the help of the given subcommand(s)
 
 Options:
-      --help                 Print help and exit
-      --log-level <LEVEL>    Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
-  -v, --version              Print version information and exit
-  -p, --port <port>          port the master mock server runs on (defaults to 8080)
-  -h, --host <host>          hostname the master mock server runs on (defaults to localhost)
-  -l, --loglevel <loglevel>  Log level for mock servers to write to the log file (defaults to info) [possible values: error, warn, info, debug, trace, none]
-      --no-term-log          Turns off using terminal ANSI escape codes
-      --no-file-log          Do not log to an output file
+      --enable-otel
+          Enable OpenTelemetry tracing
+      --help
+          Print help and exit
+      --enable-otel-logs
+          Enable OpenTelemetry logging
+  -v, --version
+          Print version information and exit
+      --enable-otel-traces
+          Enable OpenTelemetry traces
+  -p, --port <port>
+          port the master mock server runs on (defaults to 8080)
+  -h, --host <host>
+          hostname the master mock server runs on (defaults to localhost)
+      --otel-exporter <otel-exporter>
+          The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp) [env: OTEL_TRACES_EXPORTER=]
+  -l, --loglevel <loglevel>
+          Log level for mock servers to write to the log file (defaults to info) [possible values: error, warn, info, debug, trace, none]
+      --otel-exporter-endpoint <otel-exporter-endpoint>
+          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp) [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
+      --no-term-log
+          Turns off using terminal ANSI escape codes
+      --otel-exporter-protocol <otel-exporter-protocol>
+          The protocol to use for the OTLP exporter (http/protobuf, http) [env: OTEL_EXPORTER_OTLP_PROTOCOL=] [default: http] [possible values: http, http/protobuf]
+      --no-file-log
+          Do not log to an output file
+      --log-level <LEVEL>
+          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
 
 ```
 
@@ -265,9 +347,24 @@ Standalone pact verifier for provider pact verification
 Usage: pact verifier [OPTIONS]
 
 Options:
-      --help               Print help and exit
-      --log-level <LEVEL>  Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
-  -v, --version            Print version information and exit
+      --enable-otel
+          Enable OpenTelemetry tracing
+      --help
+          Print help and exit
+      --enable-otel-logs
+          Enable OpenTelemetry logging
+  -v, --version
+          Print version information and exit
+      --enable-otel-traces
+          Enable OpenTelemetry traces
+      --otel-exporter <otel-exporter>
+          The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp) [env: OTEL_TRACES_EXPORTER=]
+      --otel-exporter-endpoint <otel-exporter-endpoint>
+          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp) [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
+      --otel-exporter-protocol <otel-exporter-protocol>
+          The protocol to use for the OTLP exporter (http/protobuf, http) [env: OTEL_EXPORTER_OTLP_PROTOCOL=] [default: http] [possible values: http, http/protobuf]
+      --log-level <LEVEL>
+          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
 
 Logging options:
   -l, --loglevel <loglevel>  Log level to emit log events at (defaults to warn) [possible values: error, warn, info, debug, trace, none]
@@ -372,22 +469,34 @@ Pact Stub Server 0.6.3
 Usage: pact stub [OPTIONS]
 
 Options:
+      --enable-otel
+          Enable OpenTelemetry tracing
   -l, --loglevel <loglevel>
           Log level (defaults to info) [default: info] [possible values: error, warn, info, debug, trace, none]
+      --enable-otel-logs
+          Enable OpenTelemetry logging
   -f, --file <file>
           Pact file to load (can be repeated)
-      --log-level <LEVEL>
-          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
   -d, --dir <dir>
           Directory of pact files to load (can be repeated)
+      --enable-otel-traces
+          Enable OpenTelemetry traces
   -e, --extension <ext>
           File extension to use when loading from a directory (default is json)
+      --otel-exporter <otel-exporter>
+          The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp) [env: OTEL_TRACES_EXPORTER=]
+      --otel-exporter-endpoint <otel-exporter-endpoint>
+          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp) [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
   -u, --url <url>
           URL of pact file to fetch (can be repeated)
   -b, --broker-url <broker-url>
           URL of the pact broker to fetch pacts from [env: PACT_BROKER_BASE_URL=]
+      --otel-exporter-protocol <otel-exporter-protocol>
+          The protocol to use for the OTLP exporter (http/protobuf, http) [env: OTEL_EXPORTER_OTLP_PROTOCOL=] [default: http] [possible values: http, http/protobuf]
       --user <user>
           User and password to use when fetching pacts from URLS or Pact Broker in user:password form
+      --log-level <LEVEL>
+          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
   -t, --token <token>
           Bearer token to use when fetching pacts from URLS or Pact Broker
   -p, --port <port>
@@ -414,6 +523,49 @@ Options:
           Print help
 
 ```
+
+## Open Telemetry
+
+The `pact` cli supports native opentelemetry for traces and application logs.
+
+It is opt-in via `--enable-otel`, you must set
+    - `--enable-otel-traces` for traces
+    - `--enable-otel-logs` for logs
+        - `--log-level` must be set
+    - `--enable-otlp-exporter` must be set
+
+By default, `--otel-exporter-endpoint` will route to `http://localhost:4318`.
+
+```sh
+Options:
+      --enable-otel
+          Enable OpenTelemetry tracing
+      --enable-otel-logs
+          Enable OpenTelemetry logging
+      --enable-otel-traces
+          Enable OpenTelemetry traces
+      --otel-exporter <otel-exporter>
+          The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp) [env: OTEL_TRACES_EXPORTER=]
+      --otel-exporter-endpoint <otel-exporter-endpoint>
+          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp) [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
+      --otel-exporter-protocol <otel-exporter-protocol>
+          The protocol to use for the OTLP exporter (http/protobuf, grpc) [env: OTEL_EXPORTER_OTLP_PROTOCOL=] [default: http] [possible values: http, http/protobuf, grpc]
+      --log-level <LEVEL>
+          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
+```
+
+Standard otel environemnt variables are followed
+
+```sh
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"
+export OTEL_TRACES_EXPORTER="otlp"
+export OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf"
+```
+
+Currently instrumented crates are
+
+* pact-broker-cli
+* pact-cli
 
 ## Ecosystem
 

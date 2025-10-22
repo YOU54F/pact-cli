@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-BIN = ENV['BIN'] || 'pact-provider-verifier'
+BIN = ENV['BIN'] || 'pact'
 
 puts "=> Starting API"
 pipe = IO.popen("ruby examples/api.rb")
