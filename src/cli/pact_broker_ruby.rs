@@ -1,8 +1,7 @@
-use clap::error::{ContextKind, ContextValue, ErrorKind};
-use clap::{Arg, ArgMatches, Command, Error};
+use clap::{Arg, ArgMatches, Command};
 use std::{
-    env, fs,
-    io::{Read, Write},
+    fs,
+    io::Read,
     path::Path,
     process::{Command as Cmd, ExitStatus},
 };
@@ -10,6 +9,19 @@ use std::{
 pub fn add_ruby_broker_subcommand() -> Command {
     Command::new("ruby")
         .about("Install & Run the Pact Broker using system Ruby in $HOME/.pact/pact-broker")
+        .subcommand(
+            Command::new("install")
+                .about("Install the Pact Broker")
+                // add enable-otel command
+                .arg(
+                    Arg::new("enable-otel")
+                        .short('o')
+                        .long("enable-otel")
+                        .num_args(0)
+                        .action(clap::ArgAction::SetTrue)
+                        .help("Enable OpenTelemetry instrumentation for the Pact Broker"),
+                ),
+        )
         .subcommand(
             Command::new("start")
                 .about("Setup and Start the Pact Broker")
@@ -20,6 +32,14 @@ pub fn add_ruby_broker_subcommand() -> Command {
                         .num_args(0)
                         .action(clap::ArgAction::SetTrue)
                         .help("Run the Pact Broker in the background"),
+                )
+                .arg(
+                    Arg::new("enable-otel")
+                        .short('o')
+                        .long("enable-otel")
+                        .num_args(0)
+                        .action(clap::ArgAction::SetTrue)
+                        .help("Enable OpenTelemetry instrumentation for the Pact Broker"),
                 ),
         )
         .subcommand(Command::new("stop").about("Stop the Pact Broker"))
@@ -68,8 +88,9 @@ fn check_bundler_installed() -> Result<(), String> {
     }
 }
 
-fn write_gemfile_and_config(broker_dir: &Path) -> std::io::Result<()> {
-    let gemfile_content = r#"source 'https://rubygems.org'
+fn write_gemfile_and_config(broker_dir: &Path, otel_enabled: bool) -> std::io::Result<()> {
+    let mut gemfile_content = String::from(
+        r#"source 'https://rubygems.org'
 
 gem 'rake'
 gem 'pact_broker'
@@ -84,37 +105,118 @@ gem "pact-support"
 # required for ruby 3.4 (removed from std gems)
 gem "mutex_m"
 gem "csv"
-"#;
+"#,
+    );
 
-    let config_ru_content = r#"require 'logger'
+    if otel_enabled {
+        gemfile_content.push_str(
+            r#"
+gem "opentelemetry-api"
+gem "opentelemetry-common"
+gem "opentelemetry-sdk"
+gem "opentelemetry-instrumentation-rack"
+gem "opentelemetry-instrumentation-all"
+gem "opentelemetry-exporter-otlp"
+"#,
+        );
+    }
+
+    let config_ru_content = if otel_enabled {
+        r#"require_relative 'otel'
+require 'logger'
 require 'sequel'
 require 'pact_broker'
 
 DATABASE_CREDENTIALS = {adapter: "sqlite", database: "pact_broker_database.sqlite3", :encoding => 'utf8'}
 
-#  run via one of the following:
-#  
-#  $ bundle exec rackup -s thin
-#  $ bundle exec rackup -s puma
-#  $ bundle exec rackup -s webrick
-#  
-#  Note: if using thin, publishing results will fail with the rust verifier, as it requires the Accept-Charset header
-#  to be set to utf-8. Use puma or webrick instead, until change proposed/merged in pact-rust
-
 app = PactBroker::App.new do | config |
   config.log_stream = "stdout"
-  # config.base_urls = "http://localhost:9292 http://127.0.0.1:9292 http://0.0.0.0:9292"
-  # config.database_url = "sqlite:////tmp/pact_broker_database.sqlite3"
+  config.database_connection = Sequel.connect(DATABASE_CREDENTIALS.merge(:logger => config.logger))
+end
+
+Rack::PactBroker::OpenTelemetry.setup(self)
+run app
+"#
+    } else {
+        r#"require 'logger'
+require 'sequel'
+require 'pact_broker'
+
+DATABASE_CREDENTIALS = {adapter: "sqlite", database: "pact_broker_database.sqlite3", :encoding => 'utf8'}
+app = PactBroker::App.new do | config |
+  config.log_stream = "stdout"
   config.database_connection = Sequel.connect(DATABASE_CREDENTIALS.merge(:logger => config.logger))
 end
 
 run app
-"#;
+"#
+    };
 
     fs::create_dir_all(broker_dir)?;
+
+    if otel_enabled {
+        let otel_config_content = r#"
+require "opentelemetry/sdk"
+require "opentelemetry/exporter/otlp"
+require "opentelemetry/instrumentation/rack"
+require "opentelemetry/instrumentation/rack/middlewares/stable/event_handler"
+
+module Rack
+  module PactBroker
+    class OpenTelemetry
+      def self.setup(app_builder = nil)
+        ::OpenTelemetry::SDK.configure do |c|
+          c.use "OpenTelemetry::Instrumentation::Rack"
+          c.service_name = ENV.fetch("OTEL_SERVICE_NAME", "pact_broker-standalone")
+        end
+
+        if app_builder
+          app_builder.use ::Rack::Events, [::OpenTelemetry::Instrumentation::Rack::Middlewares::Stable::EventHandler.new]
+        end
+      end
+
+      at_exit do
+        OpenTelemetry.tracer_provider.shutdown if defined?(OpenTelemetry) && OpenTelemetry.respond_to?(:tracer_provider)
+      end
+    end
+  end
+end
+"#;
+        fs::write(broker_dir.join("otel.rb"), otel_config_content)?;
+    }
+
     fs::write(broker_dir.join("Gemfile"), gemfile_content)?;
     fs::write(broker_dir.join("config.ru"), config_ru_content)?;
     Ok(())
+}
+
+pub fn install(otel_enabled: bool) -> Result<ExitStatus, String> {
+    check_ruby_version()?;
+    check_bundler_installed()?;
+    let home_dir = home::home_dir().ok_or("Could not determine home directory.")?;
+    let broker_dir = home_dir.join(".pact/pact-broker");
+
+    write_gemfile_and_config(&broker_dir, otel_enabled)
+        .map_err(|e| format!("Failed to write Gemfile/config.ru: {}", e))?;
+
+    println!("🚀 Running bundle install in {}", broker_dir.display());
+    let status = Cmd::new("ruby")
+        .arg("-S")
+        .arg("bundle")
+        .arg("install")
+        .current_dir(&broker_dir)
+        .status()
+        .map_err(|_| "Failed to run bundle install".to_string())?;
+
+    if status.success() {
+        Ok(status)
+    } else {
+        Err("⚠️  bundle install failed. Please check your Ruby and Bundler setup.".to_string())
+    }
+}
+
+fn check_if_installed(broker_dir: &Path) -> bool {
+    broker_dir.join("Gemfile").exists() && broker_dir.join("config.ru").exists()
 }
 
 pub fn run(args: &ArgMatches) -> Result<(), String> {
@@ -123,27 +225,26 @@ pub fn run(args: &ArgMatches) -> Result<(), String> {
     let pid_file_path = broker_dir.join("broker.pid");
 
     match args.subcommand() {
-        Some(("start", args)) => {
-            check_ruby_version()?;
-            check_bundler_installed()?;
-            write_gemfile_and_config(&broker_dir)
-                .map_err(|e| format!("Failed to write Gemfile/config.ru: {}", e))?;
-
-            println!("🚀 Running bundle install in {}", broker_dir.display());
-            let status = Cmd::new("ruby")
-                .arg("-S")
-                .arg("bundle")
-                .arg("install")
-                .current_dir(&broker_dir)
-                .status()
-                .map_err(|_| "Failed to run bundle install".to_string())?;
-            if !status.success() {
-                return Err(
-                    "⚠️  bundle install failed. Please check your Ruby and Bundler setup."
-                        .to_string(),
+        Some(("install", args)) => {
+            let otel_enabled = args.get_flag("enable-otel");
+            if check_if_installed(&broker_dir) {
+                println!(
+                    "🚀 Pact Broker is already installed at {}",
+                    broker_dir.display()
                 );
+                return Ok(());
             }
-
+            println!("🚀 Installing Pact Broker...");
+            install(otel_enabled)?;
+            println!("🚀 Pact Broker installed at {}", broker_dir.display());
+            Ok(())
+        }
+        Some(("start", args)) => {
+            let otel_enabled = args.get_flag("enable-otel");
+            if !check_if_installed(&broker_dir) {
+                println!("🚀 Pact Broker not found, installing...");
+                install(otel_enabled)?;
+            }
             println!("🚀 Starting Pact Broker with Puma...");
             let mut child_cmd = Cmd::new("ruby");
             child_cmd.arg("-S").arg("bundle");
