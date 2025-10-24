@@ -2468,8 +2468,8 @@ dependencies = [
 
 [[package]]
 name = "pact-plugin-cli"
-version = "0.1.4"
-source = "git+https://github.com/pact-foundation/pact-plugins?branch=main#b598525db7916056f91bf64f0089f3b465e8c0cf"
+version = "0.2.0"
+source = "git+https://github.com/you54f/pact-plugins?branch=main#0556e4f8c73f1f3b41a32b348231bab2be591a8c"
 dependencies = [
  "anyhow",
  "chrono",
