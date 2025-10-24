@@ -29,7 +29,14 @@ A consolidated cli consisting of all Pact command line tools
 | OpenBSD       | x86_64       | ✅         |
 | OpenBSD       | arm64        | ✅         |
 
-### Install Scripts
+### Install
+
+Aliased 1-liner to the install scripts
+
+* *nix users (including Windows users running WSL/msys2/mingw):
+  * `curl -fsSL https://lin.get-pact.saf.dev | sh`
+* Powershell (windows): `
+  * `iwr -useb https://win.get-pact.saf.dev | iex`
 
 Unix systems
 
