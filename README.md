@@ -127,7 +127,7 @@ Commands:
   plugin       CLI utility for Pact plugins
   mock         Standalone Pact mock server
   verifier     Standalone pact verifier for provider pact verification
-  stub         Pact Stub Server 0.6.3
+  stub         Pact Stub Server 0.7.0
   help         Print this message or the help of the given subcommand(s)
 
 Options:
@@ -464,7 +464,7 @@ Development options:
 
 ```console
 $ pact stub --help
-Pact Stub Server 0.6.3
+Pact Stub Server 0.7.0
 
 Usage: pact stub [OPTIONS]
 
@@ -517,6 +517,8 @@ Options:
           Consumer name or regex to use to filter the Pacts fetched from the Pact broker (can be repeated)
       --provider-name <provider-name>
           Provider name or regex to use to filter the Pacts fetched from the Pact broker (can be repeated)
+  -w, --watch
+          Watch for changes in pact files and reload automatically
   -v, --version
           Print version information
   -h, --help
