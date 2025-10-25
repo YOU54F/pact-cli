@@ -1,16 +1,48 @@
-use clap::{Arg, Command, CommandFactory};
+use clap::{value_parser, Arg, Command, CommandFactory};
 
 use crate::cli::{
-    pact_broker_docker::add_docker_broker_subcommand, pact_broker_ruby::add_ruby_broker_subcommand,
+    extension::add_extension_subcommand, pact_broker_docker::add_docker_broker_subcommand,
+    pact_broker_ruby::add_ruby_broker_subcommand,
 };
 
+pub mod extension;
 pub mod otel;
 pub mod pact_broker_docker;
 pub mod pact_broker_ruby;
 
 pub fn build_cli() -> Command {
     let app = Command::new("pact")
-        .about("Pact consolidated CLI - pact_core_mock_server, pact_verifier, pact-stub-server, pact-plugin-cli, pact-broker-cli in a single binary")
+        .about("🔗 Pact in a single binary - Mock/Stub Server, Provider Verifier, Broker Client & Plugin CLI")
+        .long_about("
+
+**Pact** is the de-facto API contract testing tool. Replace expensive and brittle end-to-end integration tests with fast, reliable and easy to debug unit tests.
+
+Check out https://docs.pact.io
+
+- ⚡ Lightning fast
+- 🎈 Effortless full-stack integration testing - from the front-end to the back-end
+- 🔌 Supports HTTP/REST and event-driven systems
+- 🛠️  Configurable mock server
+- 😌 Powerful matching rules prevents brittle tests
+- 🤝 Integrates with Pact Broker / PactFlow for powerful CI/CD workflows
+- 🔡 Supports 12+ languages
+
+**Why use Pact?**
+
+Contract testing with Pact lets you:
+
+- ⚡ Test locally
+- 🚀 Deploy faster
+- ⬇️  Reduce the lead time for change
+- 💰 Reduce the cost of API integration testing
+- 💥 Prevent breaking changes
+- 🔎 Understand your system usage
+- 📃 Document your APIs for free
+- 🗄  Remove the need for complex data fixtures
+- 🤷 Reduce the reliance on complex test environments
+        ")
+        .allow_external_subcommands(true)
+        .external_subcommand_value_parser(value_parser!(String))
         .args(add_otel_options_args())
         .subcommand(
             pact_broker_cli::cli::pact_broker_client::add_pact_broker_client_command()
@@ -19,10 +51,9 @@ pub fn build_cli() -> Command {
             .subcommand(add_docker_broker_subcommand())
         )
         .args(pact_broker_cli::cli::add_logging_arguments())
-        .subcommand(
-            pact_broker_cli::cli::pactflow_client::add_pactflow_client_command().name("pactflow"),
-        )
+        .subcommand(add_pactflow_with_extensions_subcommand())
         .subcommand(add_completions_subcommand())
+        .subcommand(add_extension_subcommand())
         .subcommand(pact_plugin_cli::Cli::command().name("plugin"))
         .subcommand(pact_mock_server_cli::setup_args().name("mock"))
         .subcommand(pact_verifier_cli::args::setup_app().name("verifier"))
@@ -101,4 +132,12 @@ fn add_otel_options_args() -> Vec<Arg> {
                 "http/protobuf",
             ])),
     ]
+}
+
+fn add_pactflow_with_extensions_subcommand() -> Command {
+    // Start with the base pactflow command from the external crate
+    pact_broker_cli::cli::pactflow_client::add_pactflow_client_command()
+        .name("pactflow")
+        .allow_external_subcommands(true)
+        .external_subcommand_value_parser(value_parser!(String))
 }

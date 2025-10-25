@@ -123,7 +123,33 @@ tags format
 
 ```console
 $ pact --help
-Pact consolidated CLI - pact_core_mock_server, pact_verifier, pact-stub-server, pact-plugin-cli, pact-broker-cli in a single binary
+
+**Pact** is the de-facto API contract testing tool. Replace expensive and brittle end-to-end integration tests with fast, reliable and easy to debug unit tests.
+
+Check out https://docs.pact.io
+
+- ⚡ Lightning fast
+- 🎈 Effortless full-stack integration testing - from the front-end to the back-end
+- 🔌 Supports HTTP/REST and event-driven systems
+- 🛠️  Configurable mock server
+- 😌 Powerful matching rules prevents brittle tests
+- 🤝 Integrates with Pact Broker / PactFlow for powerful CI/CD workflows
+- 🔡 Supports 12+ languages
+
+**Why use Pact?**
+
+Contract testing with Pact lets you:
+
+- ⚡ Test locally
+- 🚀 Deploy faster
+- ⬇️  Reduce the lead time for change
+- 💰 Reduce the cost of API integration testing
+- 💥 Prevent breaking changes
+- 🔎 Understand your system usage
+- 📃 Document your APIs for free
+- 🗄  Remove the need for complex data fixtures
+- 🤷 Reduce the reliance on complex test environments
+        
 
 Usage: pact [OPTIONS] [COMMAND]
 
@@ -131,6 +157,7 @@ Commands:
   broker       A Rust and CLI client for the Pact Broker. Publish and retrieve pacts and verification results.
   pactflow     PactFlow specific commands
   completions  Generates completion scripts for your shell
+  extension    Manage Pact CLI extensions
   plugin       CLI utility for Pact plugins
   mock         Standalone Pact mock server
   verifier     Standalone pact verifier for provider pact verification
@@ -140,20 +167,38 @@ Commands:
 Options:
       --enable-otel
           Enable OpenTelemetry tracing
+
       --enable-otel-logs
           Enable OpenTelemetry logging
+
       --enable-otel-traces
           Enable OpenTelemetry traces
+
       --otel-exporter <otel-exporter>
-          The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp) [env: OTEL_TRACES_EXPORTER=]
+          The OpenTelemetry exporter(s) to use, comma separated (stdout, otlp)
+          
+          [env: OTEL_TRACES_EXPORTER=]
+
       --otel-exporter-endpoint <otel-exporter-endpoint>
-          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp) [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
+          The endpoint to use for the OTLP exporter (required if --otel-exporter=otlp)
+          
+          [env: OTEL_EXPORTER_OTLP_ENDPOINT=]
+
       --otel-exporter-protocol <otel-exporter-protocol>
-          The protocol to use for the OTLP exporter (http/protobuf, http) [env: OTEL_EXPORTER_OTLP_PROTOCOL=] [default: http] [possible values: http, http/protobuf]
+          The protocol to use for the OTLP exporter (http/protobuf, http)
+          
+          [env: OTEL_EXPORTER_OTLP_PROTOCOL=]
+          [default: http]
+          [possible values: http, http/protobuf]
+
       --log-level <LEVEL>
-          Set the log level (none, off, error, warn, info, debug, trace) [default: off] [possible values: off, none, error, warn, info, debug, trace]
+          Set the log level (none, off, error, warn, info, debug, trace)
+          
+          [default: off]
+          [possible values: off, none, error, warn, info, debug, trace]
+
   -h, --help
-          Print help
+          Print help (see a summary with '-h')
 
 ```
 

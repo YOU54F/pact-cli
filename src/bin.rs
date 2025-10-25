@@ -1,4 +1,5 @@
 mod cli;
+use crate::cli::extension;
 use crate::cli::otel::capture_telemetry;
 use crate::cli::otel::init_logging;
 use crate::cli::pact_broker_docker;
@@ -7,7 +8,18 @@ use clap::error::ErrorKind;
 use clap::ArgMatches;
 use clap_complete::{generate_to, Shell};
 use std::{process::ExitCode, str::FromStr};
-use tracing::{info, span};
+use tracing::span;
+
+/// Get known pactflow commands from the external crate
+fn get_known_pactflow_commands() -> Vec<String> {
+    // Build the pactflow command to inspect its subcommands
+    let pactflow_cmd = pact_broker_cli::cli::pactflow_client::add_pactflow_client_command();
+
+    pactflow_cmd
+        .get_subcommands()
+        .map(|cmd| cmd.get_name().to_string())
+        .collect()
+}
 
 pub fn main() -> ExitCode {
     let app = cli::build_cli();
@@ -116,9 +128,82 @@ pub fn main() -> ExitCode {
                     }
                 }
             }
+            Some(("extension", args)) => {
+                let extension_span = span!(tracing::Level::INFO, "extension");
+                let _extension_enter = extension_span.enter();
+
+                // Use tokio runtime for async extension operations
+                let rt = tokio::runtime::Runtime::new().unwrap();
+                match rt.block_on(extension::run_extension_command(args)) {
+                    Ok(_) => {
+                        capture_telemetry(&std::env::args().collect::<Vec<_>>(), 0, None);
+                        Ok(())
+                    }
+                    Err(e) => {
+                        eprintln!("❌ Extension error: {}", e);
+                        capture_telemetry(
+                            &std::env::args().collect::<Vec<_>>(),
+                            1,
+                            Some(&e.to_string()),
+                        );
+                        Err(ExitCode::from(1))
+                    }
+                }
+            }
             Some(("pactflow", args)) => {
                 let pactflow_span = span!(tracing::Level::INFO, "pactflow");
                 let _pactflow_enter = pactflow_span.enter();
+
+                // Check if this might be a pactflow extension first
+                if let Some((potential_extension, _)) = args.subcommand() {
+                    let known_commands = get_known_pactflow_commands();
+
+                    // If it's not a known pactflow command, check if it's an extension
+                    if !known_commands.contains(&potential_extension.to_string()) {
+                        // Check if it's a pactflow extension
+                        if extension::is_pactflow_extension(potential_extension) {
+                            let extension_args: Vec<String> = std::env::args()
+                                .skip_while(|arg| arg != potential_extension)
+                                .skip(1)
+                                .collect();
+
+                            match extension::run_pactflow_extension(
+                                potential_extension,
+                                &extension_args,
+                            ) {
+                                Ok(status) => {
+                                    let exit_code = if status.success() {
+                                        0
+                                    } else {
+                                        status.code().unwrap_or(1)
+                                    };
+                                    capture_telemetry(
+                                        &std::env::args().collect::<Vec<_>>(),
+                                        exit_code,
+                                        None,
+                                    );
+                                    return if status.success() {
+                                        ExitCode::SUCCESS
+                                    } else {
+                                        ExitCode::from(exit_code as u8)
+                                    };
+                                }
+                                Err(e) => {
+                                    eprintln!("❌ PactFlow extension error: {}", e);
+                                    capture_telemetry(
+                                        &std::env::args().collect::<Vec<_>>(),
+                                        1,
+                                        Some(&e.to_string()),
+                                    );
+                                    return ExitCode::from(1);
+                                }
+                            }
+                        }
+                        // If not an extension, fall through to regular handling which will show an error
+                    }
+                }
+
+                // Regular pactflow handling
                 match pact_broker_cli::cli::pactflow_client::run(args, std::env::args().collect()) {
                     Ok(_) => {
                         capture_telemetry(&std::env::args().collect::<Vec<_>>(), 0, None);
@@ -165,7 +250,36 @@ pub fn main() -> ExitCode {
                 capture_telemetry(&std::env::args().collect::<Vec<_>>(), 0, None);
                 res
             }
-            _ => {
+            Some((external_cmd, _)) => {
+                // Handle external subcommands - might be extensions
+                let args: Vec<String> = std::env::args().skip(2).collect();
+                match extension::run_external_extension(external_cmd, &args) {
+                    Ok(status) => {
+                        let exit_code = if status.success() {
+                            0
+                        } else {
+                            status.code().unwrap_or(1)
+                        };
+                        capture_telemetry(&std::env::args().collect::<Vec<_>>(), exit_code, None);
+                        if status.success() {
+                            Ok(())
+                        } else {
+                            Err(ExitCode::from(exit_code as u8))
+                        }
+                    }
+                    Err(_) => {
+                        // Extension not found, show help
+                        cli::build_cli().print_help().unwrap();
+                        capture_telemetry(
+                            &std::env::args().collect::<Vec<_>>(),
+                            1,
+                            Some("Unknown command"),
+                        );
+                        Err(ExitCode::from(1))
+                    }
+                }
+            }
+            None => {
                 cli::build_cli().print_help().unwrap();
                 Ok(())
             }
