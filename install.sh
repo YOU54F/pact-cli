@@ -1,14 +1,14 @@
 #!/bin/sh -e
 ## Tested with https://www.shellcheck.net/
 # Usage: (install latest)
-#   $ curl -fsSL https://raw.githubusercontent.com/you54f/pact-cli/main/install.sh | sh
+#   $ curl -fsSL https://raw.githubusercontent.com/pact-foundation/pact-cli/main/install.sh | sh
 # or
-#   $ wget -q https://raw.githubusercontent.com/you54f/pact-cli/main/install.sh -O- | sh
+#   $ wget -q https://raw.githubusercontent.com/pact-foundation/pact-cli/main/install.sh -O- | sh
 #
 # Usage: (install fixed version) - pass PACT_CLI_VERSION=v<PACT_CLI_VERSION> eg PACT_CLI_VERSION=v1.92.0 or set as an env var
-#   $ curl -fsSL https://raw.githubusercontent.com/you54f/pact-cli/main/install.sh | PACT_CLI_VERSION=v1.92.0 sh
+#   $ curl -fsSL https://raw.githubusercontent.com/pact-foundation/pact-cli/main/install.sh | PACT_CLI_VERSION=v1.92.0 sh
 # or
-#   $ wget -q https://raw.githubusercontent.com/you54f/pact-cli/main/install.sh -O- | PACT_CLI_VERSION=v1.92.0 sh
+#   $ wget -q https://raw.githubusercontent.com/pact-foundation/pact-cli/main/install.sh -O- | PACT_CLI_VERSION=v1.92.0 sh
 #
 if [ "$tag" ]; then
   echo "setting $tag as PACT_CLI_VERSION for legacy reasons"
@@ -26,11 +26,11 @@ fi
 
 if [ -z "$PACT_CLI_VERSION" ]; then
   if command -v curl >/dev/null 2>&1; then
-    PACT_CLI_VERSION=$(basename "$(curl -fs -o/dev/null -w "%{redirect_url}" https://github.com/you54f/pact-cli/releases/latest)")
+    PACT_CLI_VERSION=$(basename "$(curl -fs -o/dev/null -w "%{redirect_url}" https://github.com/pact-foundation/pact-cli/releases/latest)")
   elif command -v wget >/dev/null 2>&1; then
-    PACT_CLI_VERSION=$(basename "$(wget -q -S -O /dev/null https://github.com/you54f/pact-cli/releases/latest 2>&1 | grep -i "Location:" | awk '{print $2}')")
+    PACT_CLI_VERSION=$(basename "$(wget -q -S -O /dev/null https://github.com/pact-foundation/pact-cli/releases/latest 2>&1 | grep -i "Location:" | awk '{print $2}')")
   else
-    echo "Sorry, you need set a version number PACT_CLI_VERSION as we can't determine the latest at this time. See https://github.com/you54f/pact-cli/releases/latest."
+    echo "Sorry, you need set a version number PACT_CLI_VERSION as we can't determine the latest at this time. See https://github.com/pact-foundation/pact-cli/releases/latest."
     exit 1
   fi
   if [ -z "$PACT_CLI_VERSION" ]; then
@@ -44,7 +44,7 @@ if [ -z "$PACT_CLI_VERSION" ]; then
   echo "-----"
   echo "You can download a fixed version by setting the PACT_CLI_VERSION environment variable eg PACT_CLI_VERSION=v1.92.0"
   echo "example:"
-  echo "curl -fsSL https://raw.githubusercontent.com/you54f/pact-cli/master/install.sh | PACT_CLI_VERSION=v1.92.0 sh"
+  echo "curl -fsSL https://raw.githubusercontent.com/pact-foundation/pact-cli/master/install.sh | PACT_CLI_VERSION=v1.92.0 sh"
 else
   echo "Thanks for downloading pact-cli $PACT_CLI_VERSION."
 fi
@@ -116,8 +116,8 @@ echo
 echo "-------------"
 echo "Downloading ${filename} - version ${PACT_CLI_VERSION}"
 echo "-------------"
-echo "Url: https://github.com/you54f/pact-cli/releases/download/${PACT_CLI_VERSION}/${filename}"
-($downloader https://github.com/you54f/pact-cli/releases/download/"${PACT_CLI_VERSION}"/"${filename}" && echo downloaded "${filename}") || (echo "Failed to download pact, check the version and url." && exit 1)
+echo "Url: https://github.com/pact-foundation/pact-cli/releases/download/${PACT_CLI_VERSION}/${filename}"
+($downloader https://github.com/pact-foundation/pact-cli/releases/download/"${PACT_CLI_VERSION}"/"${filename}" && echo downloaded "${filename}") || (echo "Failed to download pact, check the version and url." && exit 1)
 echo "$PROJECT_NAME ${PACT_CLI_VERSION} installed to $(pwd)"
 echo "-------------------"
 echo "available commands:"

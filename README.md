@@ -1,6 +1,6 @@
 # Pact CLI
 
-[![Test and Release](https://github.com/YOU54F/pact_cli/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/YOU54F/pact_cli/actions/workflows/test.yml)
+[![Test and Release](https://github.com/pact-foundation/pact-cli/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/pact-foundation/pact-cli/actions/workflows/test.yml)
 
 A consolidated cli consisting of all Pact command line tools
 
@@ -41,39 +41,39 @@ Aliased 1-liner to the install scripts
 Unix systems
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/you54f/pact-cli/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/pact-foundation/pact-cli/main/install.sh | sh
 ```
 
 ```sh
-wget -q https://raw.githubusercontent.com/you54f/pact-cli/main/install.sh -O- | sh
+wget -q https://raw.githubusercontent.com/pact-foundation/pact-cli/main/install.sh -O- | sh
 ```
 
 install fixed version - pass `PACT_CLI_VERSION=v<PACT_CLI_VERSION>` eg `PACT_CLI_VERSION=v0.0.1` or set as an env var
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/you54f/pact-cli/main/install.sh | PACT_CLI_VERSION=v0.0.1 sh
+curl -fsSL https://raw.githubusercontent.com/pact-foundation/pact-cli/main/install.sh | PACT_CLI_VERSION=v0.0.1 sh
 ```
 
 ```sh
-wget -q https://raw.githubusercontent.com/you54f/pact-cli/main/install.sh -O- | PACT_CLI_VERSION=v0.0.1 sh
+wget -q https://raw.githubusercontent.com/pact-foundation/pact-cli/main/install.sh -O- | PACT_CLI_VERSION=v0.0.1 sh
 ```
 
 Windows (Powershell)
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/you54f/pact-cli/main/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/pact-foundation/pact-cli/main/install.ps1 | iex
 ```
 
 To install a specific version, set the `PACT_CLI_VERSION` environment variable before running the script:
 
 ```powershell
 $env:PACT_CLI_VERSION = "v0.0.1"
-iwr -useb https://raw.githubusercontent.com/you54f/pact-cli/main/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/pact-foundation/pact-cli/main/install.ps1 | iex
 ```
 
 ### Standalone executable
 
-Download the latest binary release for your required platform, from the [release](https://github.com/you54f/pact-cli/releases) page.
+Download the latest binary release for your required platform, from the [release](https://github.com/pact-foundation/pact-cli/releases) page.
 
 ### Cargo
 
@@ -89,12 +89,12 @@ cargo install pact --locked --version <VERSION>
 
 ### GitHub Action
 
-An action is available at `you54f/pact-cli@<tag>`
+An action is available at `pact-foundation/pact-cli@<tag>`
 
 Example
 
 ```yml
-    - uses: you54f/pact-cli@main
+    - uses: pact-foundation/pact-cli@main
  
     - name: Show help commands
       run: |
@@ -213,6 +213,7 @@ Usage: pact broker [OPTIONS] [COMMAND]
 Commands:
   publish                       Publishes pacts to the Pact Broker
   list-latest-pact-versions     List the latest pact for each integration
+  get-pacts                     Get pacts for a specified provider, optionally filtered by consumer and/or branch
   create-environment            Create an environment resource in the Pact Broker to represent a real world deployment or release environment
   update-environment            Update an environment resource in the Pact Broker
   delete-environment            Delete an environment
@@ -229,12 +230,15 @@ Commands:
   list-pacticipants             List pacticipants
   create-webhook                Create a webhook
   create-or-update-webhook      Create or update a webhook
+  delete-webhook                Delete a webhook
   test-webhook                  Test a webhook
   delete-branch                 Deletes a pacticipant branch. Does not delete the versions or pacts/verifications associated with the branch, but does make the pacts inaccessible for verification via consumer versions selectors or WIP pacts.
   create-version-tag            Add a tag to a pacticipant version
-  describe-version              Describes a pacticipant version. If no version or tag is specified, the latest version is described.
+  delete-version-tag            Delete a tag from a pacticipant version
+  describe-version              Describes a pacticipant version. If no version or tag is specified, the latest version is described. Use --environment to query versions deployed/released to specific environments.
   create-or-update-version      Create or update pacticipant version by version number
   generate-uuid                 Generate a UUID for use when calling create-or-update-webhook
+  provider-states               Manage provider states
   ruby                          Install & Run the Pact Broker using system Ruby in $HOME/.pact/pact-broker
   docker                        Run the Pact Broker as a Docker container
   help                          Print this message or the help of the given subcommand(s)
@@ -676,7 +680,7 @@ Command line executable that provides a server that can generate responses based
 
 ## Contributing
 
-See [CONTRIBUTING](https://github.com/you54f/pact_cli/tree/main/CONTRIBUTING.md) (PRs are always welcome!).
+See [CONTRIBUTING](https://github.com/pact-foundation/pact-cli/tree/main/CONTRIBUTING.md) (PRs are always welcome!).
 
 ## Documentation
 
@@ -708,4 +712,4 @@ or
 
 ## Licensing
 
-The code in this project is licensed under a MIT license. See [LICENSE](https://github.com/you54f/pact_cli/tree/main/LICENSE).
+The code in this project is licensed under a MIT license. See [LICENSE](https://github.com/pact-foundation/pact-cli/tree/main/LICENSE).
