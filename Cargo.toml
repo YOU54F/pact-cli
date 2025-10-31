@@ -22,7 +22,7 @@ include = [
 
 [dependencies]
 
-clap = { version = "4.5.2", features = ["derive", "env", "cargo"] }
+clap = { version = "4.5.51", features = ["derive", "env", "cargo"] }
 clap_complete = { version = "4.5.1", features = [] }
 home = "0.5.5"
 reqwest = { version = "0.12.24", features = ["json"] }
