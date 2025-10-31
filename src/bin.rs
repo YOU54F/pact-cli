@@ -218,7 +218,7 @@ pub fn main() -> ExitCode {
             Some(("stub", args)) => {
                 let stub_span = span!(tracing::Level::INFO, "stub");
                 let _stub_enter = stub_span.enter();
-                let res = pact_stub_server_cli::process_stub_command(args);
+                let res = pact_stub_server::process_stub_command(args);
                 capture_telemetry(&std::env::args().collect::<Vec<_>>(), 0, None);
                 res
             }
@@ -293,7 +293,7 @@ pub fn main() -> ExitCode {
                 let versions = [
                     ("pact-verifier", pact_verifier_cli::print_version as fn()),
                     ("pact-mock", pact_mock_server_cli::print_version as fn()),
-                    ("pact-stub", pact_stub_server_cli::print_version as fn()),
+                    ("pact-stub", pact_stub_server::print_version as fn()),
                 ];
                 for (name, print_fn) in &versions {
                     if error_message.contains(name) {

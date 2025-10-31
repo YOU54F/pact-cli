@@ -57,7 +57,7 @@ Contract testing with Pact lets you:
         .subcommand(pact_plugin_cli::Cli::command().name("plugin"))
         .subcommand(pact_mock_server_cli::setup_args().name("mock"))
         .subcommand(pact_verifier_cli::args::setup_app().name("verifier"))
-        .subcommand(pact_stub_server_cli::build_args().name("stub"));
+        .subcommand(pact_stub_server::build_args().name("stub"));
     app
 }
 

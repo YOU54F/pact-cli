@@ -7,7 +7,7 @@ platforms=("linux/amd64" "linux/arm64")
 for platform in "${platforms[@]}"
 do
 
-  image="${1:-you54f/pact}"
+  image="${1:-pact-foundation/pact}"
   tag="${2:-latest}"
   echo "Running $image:$tag on $platform"
   docker run --rm --platform "$platform" "$image:$tag"

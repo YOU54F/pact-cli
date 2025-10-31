@@ -20,14 +20,14 @@ Build images
 
 ```shell
 export DOCKER_TAG=0.6.0
-docker buildx build -t you54f/pact:$DOCKER_TAG --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 .
-docker buildx build -t you54f/pact:latest --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 .
+docker buildx build -t pact-foundation/pact:$DOCKER_TAG --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 .
+docker buildx build -t pact-foundation/pact:latest --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 .
 ```
 
 Build & Push images - will use cached images if available
 
 ```shell
 export DOCKER_TAG=0.6.0
-docker buildx build -t you54f/pact:$DOCKER_TAG --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 --push .
-docker buildx build -t you54f/pact:latest --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 --push .
+docker buildx build -t pact-foundation/pact:$DOCKER_TAG --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 --push .
+docker buildx build -t pact-foundation/pact:latest --build-arg VERSION=$DOCKER_TAG --platform linux/amd64,linux/arm64 --push .
 ```

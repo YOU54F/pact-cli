@@ -12,7 +12,7 @@ pact extension list
 pact extension install pactflow-ai
 
 # Install Ruby legacy tools
-pact extension install pact-ruby-standalone
+pact extension install pact-legacy
 
 # Use PactFlow AI directly
 pact pactflow ai --help
@@ -35,9 +35,9 @@ pact extension pact-broker-legacy --help
 
 ### Ruby Legacy Tools
 
-**Traditional Ruby-based Pact tools (pact-ruby-standalone)**
+**Traditional Ruby-based Pact tools (pact-legacy)**
 
-- **Name**: `pact-ruby-standalone`
+- **Name**: `pact-legacy`
 - **Type**: Ruby Legacy
 - **Includes**:
   - `pact-broker-legacy` - Legacy Pact Broker client
@@ -56,11 +56,11 @@ pact extension pact-broker-legacy --help
 ```bash
 # Install latest version
 pact extension install pactflow-ai
-pact extension install pact-ruby-standalone
+pact extension install pact-legacy
 
 # Install specific version
 pact extension install pactflow-ai --version 1.11.4
-pact extension install pact-ruby-standalone --version v2.5.5
+pact extension install pact-legacy --version v2.5.5
 ```
 
 ### Listing Extensions
@@ -96,7 +96,7 @@ pact extension update --all
 
 # Update specific extension
 pact extension update pactflow-ai
-pact extension update pact-ruby-standalone
+pact extension update pact-legacy
 ```
 
 ### Uninstalling Extensions
@@ -106,7 +106,7 @@ pact extension update pact-ruby-standalone
 pact extension uninstall pactflow-ai
 
 # Uninstall Ruby legacy tools (removes all legacy tools)
-pact extension uninstall pact-ruby-standalone
+pact extension uninstall pact-legacy
 
 # Uninstall individual legacy tool
 pact extension uninstall pact-broker-legacy
@@ -154,7 +154,7 @@ Extensions are installed to `~/.pact/extensions/` by default:
 │   ├── mock-legacy
 │   ├── verifier-legacy
 │   └── stub-legacy
-└── pact-ruby-standalone/               # Ruby tools installation
+└── pact-legacy/               # Ruby tools installation
     └── bin/
         ├── pact-broker
         ├── pactflow
@@ -187,7 +187,7 @@ The extension system provides intelligent version tracking:
 
 - **Installed Version**: Recorded during installation from GitHub release tag
 - **Latest Version**: Fetched from GitHub API `/repos/pact-foundation/pact-standalone/releases/latest`
-- **Manual Updates**: Use `pact extension update pact-ruby-standalone`
+- **Manual Updates**: Use `pact extension update pact-legacy`
 
 ## 🌍 Platform Support
 
@@ -209,11 +209,11 @@ The extension system provides intelligent version tracking:
 
 ```yaml
 # GitHub Actions example
-- uses: you54f/pact-cli@main
+- uses: `pact-foundation`/pact-cli@main
 - name: Install Pact Extensions
   run: |
     pact extension install pactflow-ai
-    pact extension install pact-ruby-standalone
+    pact extension install pact-legacy
 - name: Or Install All Pact Extensions
   run: |
     pact extension install --all

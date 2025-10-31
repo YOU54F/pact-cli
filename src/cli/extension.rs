@@ -302,12 +302,12 @@ impl ExtensionManager {
             version, version.trim_start_matches('v'), target, archive_ext
         );
 
-        println!("🚀 Downloading pact-ruby-standalone from {}", url);
+        println!("🚀 Downloading pact-legacy from {}", url);
 
         let response = reqwest::get(&url).await?;
         if !response.status().is_success() {
             return Err(format!(
-                "Failed to download pact-ruby-standalone: HTTP {}",
+                "Failed to download pact-legacy: HTTP {}",
                 response.status()
             )
             .into());
@@ -315,7 +315,7 @@ impl ExtensionManager {
 
         let body = response.bytes().await?;
         let archive_path = format!(
-            "{}/pact-ruby-standalone.{}",
+            "{}/pact-legacy.{}",
             self.extensions_home, archive_ext
         );
         let mut file = fs::File::create(&archive_path)?;
@@ -323,7 +323,7 @@ impl ExtensionManager {
         drop(file);
 
         // Extract archive
-        println!("🚀 Extracting pact-ruby-standalone...");
+        println!("🚀 Extracting pact-legacy...");
         self.extract_ruby_archive(&archive_path)?;
 
         // Create symlinks for legacy commands and record installed version
@@ -332,7 +332,7 @@ impl ExtensionManager {
         // Clean up archive
         fs::remove_file(&archive_path)?;
 
-        println!("✅ Successfully installed pact-ruby-standalone tools");
+        println!("✅ Successfully installed pact-legacy tools");
         Ok(())
     }
 
@@ -390,7 +390,7 @@ impl ExtensionManager {
     }
 
     fn extract_ruby_archive(&self, archive_path: &str) -> Result<(), Box<dyn std::error::Error>> {
-        let extract_dir = format!("{}/pact-ruby-standalone", self.extensions_home);
+        let extract_dir = format!("{}/pact-legacy", self.extensions_home);
         fs::create_dir_all(&extract_dir)?;
 
         if self.platform.os == "windows" {
@@ -431,7 +431,7 @@ impl ExtensionManager {
         let bin_dir = format!("{}/bin", self.extensions_home);
         fs::create_dir_all(&bin_dir)?;
 
-        let ruby_bin_dir = format!("{}/pact-ruby-standalone/bin", self.extensions_home);
+        let ruby_bin_dir = format!("{}/pact-legacy/bin", self.extensions_home);
         let exe_ext = self.platform.get_executable_extension();
 
         let legacy_mappings = [
@@ -471,12 +471,12 @@ impl ExtensionManager {
         // Update config for all legacy tools
         let mut config = self.load_config();
 
-        // Add master pact-ruby-standalone entry
-        let ruby_dir = format!("{}/pact-ruby-standalone", self.extensions_home);
+        // Add master pact-legacy entry
+        let ruby_dir = format!("{}/pact-legacy", self.extensions_home);
         config.insert(
-            "pact-ruby-standalone".to_string(),
+            "pact-legacy".to_string(),
             ExtensionConfig {
-                name: "pact-ruby-standalone".to_string(),
+                name: "pact-legacy".to_string(),
                 version: version.to_string(),
                 binary_path: ruby_dir.clone(),
                 extension_type: ExtensionType::PactRubyStandalone,
@@ -538,16 +538,16 @@ impl ExtensionManager {
         extension_name: &str,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let mut config = self.load_config();
-        if extension_name == "pact-ruby-standalone" {
+        if extension_name == "pact-legacy" {
             // Special handling for master ruby-standalone extension
-            println!("🗑️  Uninstalling pact-ruby-standalone and all legacy tools...");
+            println!("🗑️  Uninstalling pact-legacy and all legacy tools...");
 
             // Remove all legacy tool symlinks and config entries
             let legacy_tools: Vec<String> = config
                 .iter()
                 .filter_map(|(name, ext_config)| {
                     if matches!(ext_config.extension_type, ExtensionType::PactRubyStandalone)
-                        && name != "pact-ruby-standalone"
+                        && name != "pact-legacy"
                     {
                         Some(name.clone())
                     } else {
@@ -567,22 +567,22 @@ impl ExtensionManager {
             }
 
             // Remove the ruby-standalone directory
-            let ruby_dir = format!("{}/pact-ruby-standalone", self.extensions_home);
+            let ruby_dir = format!("{}/pact-legacy", self.extensions_home);
             if Path::new(&ruby_dir).exists() {
                 fs::remove_dir_all(&ruby_dir)?;
                 println!("🗑️  Removed ruby-standalone directory");
             }
 
             // Remove master config entry
-            config.remove("pact-ruby-standalone");
+            config.remove("pact-legacy");
             self.save_config(&config)?;
 
-            println!("✅ Successfully uninstalled pact-ruby-standalone and all legacy tools");
+            println!("✅ Successfully uninstalled pact-legacy and all legacy tools");
         } else if let Some(ext_config) = config.get(extension_name) {
             println!("🗑️  Uninstalling extension: {}", extension_name);
 
             if Path::new(&ext_config.binary_path).exists() {
-                if ext_config.binary_path.ends_with("/pact-ruby-standalone") {
+                if ext_config.binary_path.ends_with("/pact-legacy") {
                     // This is a directory, remove it
                     fs::remove_dir_all(&ext_config.binary_path)?;
                 } else {
@@ -624,7 +624,7 @@ pub fn add_extension_subcommand() -> Command {
                     Arg::new("extension")
                         .help("Extension name to install")
                         .required(false)
-                        .value_parser(["pactflow-ai", "pact-ruby-standalone"]),
+                        .value_parser(["pactflow-ai", "pact-legacy"]),
                 )
                 .arg(
                     Arg::new("all")
@@ -759,7 +759,7 @@ pub async fn run_extension_command(args: &ArgMatches) -> Result<(), Box<dyn std:
                     "pactflow-ai" => {
                         manager.install_pactflow_ai(version).await?;
                     }
-                    "pact-ruby-standalone" => {
+                    "pact-legacy" => {
                         manager.install_ruby_legacy(version).await?;
                     }
                     _ => {
@@ -842,7 +842,7 @@ pub async fn run_extension_command(args: &ArgMatches) -> Result<(), Box<dyn std:
             let mut ruby_found = false;
             installed_extensions.retain(|(name, config)| {
                 if matches!(config.extension_type, ExtensionType::PactRubyStandalone) {
-                if !ruby_found && name == "pact-ruby-standalone" {
+                if !ruby_found && name == "pact-legacy" {
                     ruby_found = true;
                     true
                 } else {
