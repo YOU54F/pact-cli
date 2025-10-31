@@ -7,7 +7,7 @@ description = "Pact consolidated CLI - pact_core_mock_server, pact_verifier, pac
 homepage = "https://www.pact.io"
 repository = "https://github.com/pact-foundation/pact-cli"
 readme = "README.md"
-keywords = ["pact_core_mock_server", "pact_verifier", "pact-stub-server", "pact-plugin-cli", "pact-broker-cli"]
+keywords = ["pact-mock-server", "pact-verifier", "pact-stub-server", "pact-plugin", "pact-broker-client"]
 license = "MIT"
 include = [
     "src/**",
